@@ -69,7 +69,8 @@ export default function Home() {
   };
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-black font-sans text-white selection:bg-[#ccff00] selection:text-black">
+    <main className="relative h-screen w-screen overflow-hidden bg-[#05010a] font-sans text-white selection:bg-[#b026ff] selection:text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(176,38,255,0.24),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(255,114,201,0.18),_transparent_30%),linear-gradient(180deg,_#13051f_0%,_#05010a_55%,_#020103_100%)]" />
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-10 text-white">
         <div
           className="pointer-events-none absolute inset-0 opacity-20 mix-blend-screen"
@@ -80,12 +81,12 @@ export default function Home() {
         />
 
         <motion.div style={{ skewX }} className="relative z-10 flex flex-col items-center">
-          <h1 className="font-serif text-[18vw] font-light leading-[0.6] tracking-tight text-gray-400 italic">
+          <h1 className="font-serif text-[18vw] font-light leading-[0.6] tracking-tight text-white/55 italic">
             Yol
           </h1>
           <h1
             className="text-[20vw] font-black leading-[0.8] tracking-tighter text-transparent uppercase"
-            style={{ WebkitTextStroke: '2px white' }}
+            style={{ WebkitTextStroke: '2px #d6b1ff' }}
           >
             YOOLA
           </h1>
@@ -112,69 +113,70 @@ export default function Home() {
         </div>
 
         <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 -rotate-12 overflow-hidden opacity-20">
-          <div className="animate-marquee flex whitespace-nowrap text-[8vw] font-black tracking-widest uppercase">
+          <div className="animate-marquee flex whitespace-nowrap text-[8vw] font-black tracking-widest text-[#b48cff] uppercase">
             <span>YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦</span>
           </div>
         </div>
       </div>
 
       <motion.div
-        className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden bg-[#ccff00] text-black"
+        className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,_rgba(176,38,255,0.72),_rgba(76,14,115,0.92)_34%,_rgba(10,4,18,0.98)_72%)] text-white"
         style={{
           WebkitMaskImage: maskImage,
           maskImage,
         }}
       >
         <div
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
+              'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,_rgba(255,114,201,0.22),_transparent_25%),radial-gradient(circle_at_80%_70%,_rgba(98,220,255,0.16),_transparent_22%)]" />
 
         <motion.div
           style={{ skewX: negativeSkewX, scale }}
           className="relative z-10 flex flex-col items-center"
         >
-          <h1 className="font-serif text-[22vw] font-black leading-[0.6] tracking-tighter text-[#ff003c] italic mix-blend-multiply -rotate-6">
+          <h1 className="font-serif text-[22vw] font-black leading-[0.6] tracking-tighter text-[#ff72c9] italic mix-blend-screen -rotate-6">
             Yol
           </h1>
-          <h1 className="text-[24vw] font-black leading-[0.8] tracking-tighter text-black uppercase">
+          <h1 className="text-[24vw] font-black leading-[0.8] tracking-tighter text-white uppercase [text-shadow:0_0_28px_rgba(176,38,255,0.45)]">
             YOOLA
           </h1>
         </motion.div>
 
-        <div className="absolute top-[10%] left-[5%] aspect-[4/5] w-[35vw] max-w-[450px] rotate-6 mix-blend-exclusion shadow-2xl">
+        <div className="absolute top-[10%] left-[5%] aspect-[4/5] w-[35vw] max-w-[450px] rotate-6 mix-blend-screen shadow-[0_35px_120px_rgba(176,38,255,0.35)]">
           <Image
             src={revealPortrait.src}
             alt={revealPortrait.title}
             fill
             sizes="(max-width: 768px) 44vw, 35vw"
-            className="object-cover contrast-150 saturate-150"
+            className="object-cover contrast-125 saturate-150 hue-rotate-[8deg]"
           />
         </div>
 
-        <div className="absolute right-[5%] bottom-[5%] aspect-video w-[40vw] max-w-[500px] -rotate-12 mix-blend-color-burn">
+        <div className="absolute right-[5%] bottom-[5%] aspect-video w-[40vw] max-w-[500px] -rotate-12 mix-blend-lighten opacity-90">
           <Image
             src={revealWide.src}
             alt={revealWide.title}
             fill
             sizes="(max-width: 768px) 48vw, 40vw"
-            className="object-cover contrast-200 hue-rotate-[35deg]"
+            className="object-cover contrast-150 saturate-125 hue-rotate-[300deg]"
           />
         </div>
 
         <motion.div
-          className="absolute top-[20%] right-[20%] text-[30vw] leading-none text-[#b026ff] mix-blend-multiply"
+          className="absolute top-[20%] right-[20%] text-[30vw] leading-none text-[#d28dff] opacity-80 mix-blend-screen"
           animate={{ rotate: -360 }}
           transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
         >
           ✦
         </motion.div>
 
-        <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 rotate-12 overflow-hidden text-white mix-blend-difference">
+        <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 rotate-12 overflow-hidden text-[#f7eaff] opacity-75">
           <div
             className="animate-marquee flex whitespace-nowrap text-[10vw] font-serif font-black tracking-widest italic"
             style={{ animationDirection: 'reverse', animationDuration: '15s' }}
@@ -186,7 +188,7 @@ export default function Home() {
 
       <div className="pointer-events-none absolute inset-0 z-30">
         <motion.div
-          className="fixed top-0 left-0 z-50 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference"
+          className="fixed top-0 left-0 z-50 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f4dcff] mix-blend-screen shadow-[0_0_18px_rgba(176,38,255,0.9)]"
           style={{ x: mouseX, y: mouseY }}
         />
 
@@ -194,10 +196,10 @@ export default function Home() {
           <button
             type="button"
             onClick={handleEnterVoid}
-            className="group relative overflow-hidden rounded-full border border-white/30 bg-transparent px-12 py-6 transition-colors duration-500 hover:border-transparent"
+            className="group relative overflow-hidden rounded-full border border-[#d1a0ff]/45 bg-black/25 px-12 py-6 transition-colors duration-500 hover:border-transparent"
           >
-            <div className="absolute inset-0 origin-bottom scale-y-0 bg-white transition-transform duration-500 ease-[cubic-bezier(0.8,0,0.2,1)] group-hover:scale-y-100" />
-            <span className="relative z-10 text-xl font-black tracking-[0.2em] text-white uppercase transition-colors duration-500 group-hover:text-black">
+            <div className="absolute inset-0 origin-bottom scale-y-0 bg-[#b026ff] transition-transform duration-500 ease-[cubic-bezier(0.8,0,0.2,1)] group-hover:scale-y-100" />
+            <span className="relative z-10 text-xl font-black tracking-[0.2em] text-white uppercase transition-colors duration-500 group-hover:text-white">
               Enter The Void
             </span>
           </button>
@@ -209,13 +211,13 @@ export default function Home() {
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[999] flex origin-bottom items-center justify-center bg-[#ccff00]"
+          className="fixed inset-0 z-[999] flex origin-bottom items-center justify-center bg-[linear-gradient(180deg,_#16041f_0%,_#3d0d5a_45%,_#b026ff_100%)]"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-6xl font-black tracking-tighter text-black uppercase md:text-8xl"
+            className="text-6xl font-black tracking-tighter text-white uppercase md:text-8xl"
           >
             Entering...
           </motion.div>
