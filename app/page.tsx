@@ -1,153 +1,226 @@
+'use client';
+
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useVelocity,
+} from 'motion/react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { archiveArtworks } from '@/lib/archive-data';
 
 export default function Home() {
-  const heroArtwork = archiveArtworks[9];
-  const ribbonArtworks = archiveArtworks.slice(2, 5);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const router = useRouter();
+
+  const basePortrait = archiveArtworks[0];
+  const baseOrb = archiveArtworks[4];
+  const revealPortrait = archiveArtworks[9];
+  const revealWide = archiveArtworks[7];
+
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const smoothY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+  const velocityX = useVelocity(smoothX);
+  const velocityY = useVelocity(smoothY);
+
+  const skewX = useTransform(velocityX, [-2000, 2000], [-25, 25]);
+  const negativeSkewX = useTransform(skewX, (value) => -value);
+  const scale = useTransform(velocityY, [-2000, 2000], [0.8, 1.2]);
+
+  const maskImage = useMotionTemplate`radial-gradient(circle 350px at ${smoothX}px ${smoothY}px, black 40%, transparent 100%)`;
+
+  useEffect(() => {
+    setIsMounted(true);
+
+    mouseX.set(window.innerWidth / 2);
+    mouseY.set(window.innerHeight / 2);
+
+    const handleMouseMove = (event: MouseEvent) => {
+      mouseX.set(event.clientX);
+      mouseY.set(event.clientY);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [mouseX, mouseY]);
+
+  if (!isMounted) {
+    return <div className="h-screen w-screen bg-black" />;
+  }
+
+  const handleEnterVoid = () => {
+    setIsTransitioning(true);
+
+    window.setTimeout(() => {
+      router.push('/gallery');
+    }, 800);
+  };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#050505] text-white selection:bg-[#b026ff] selection:text-white">
-      <div className="bg-yoola-grid absolute inset-0" />
-      <div className="noise-overlay absolute inset-0 opacity-45" />
-      <div className="scanlines absolute inset-0 opacity-15" />
-
-      <div className="pointer-events-none absolute top-1/2 left-1/2 z-0 flex w-full -translate-x-1/2 -translate-y-1/2 flex-col text-center leading-none opacity-10">
-        <span
-          className="font-display text-[22vw] font-black tracking-tighter text-transparent"
-          style={{ WebkitTextStroke: '2px #b026ff' }}
-        >
-          YOL YOOLA
-        </span>
-        <span className="-mt-[8vw] font-display text-[22vw] font-black tracking-tighter text-[#b026ff]">
-          YOL YOOLA
-        </span>
-        <span
-          className="-mt-[8vw] font-display text-[22vw] font-black tracking-tighter text-transparent"
-          style={{ WebkitTextStroke: '2px #b026ff' }}
-        >
-          YOL YOOLA
-        </span>
-      </div>
-
-      <div className="absolute top-1/4 -left-10 z-20 flex w-[120%] -rotate-6 overflow-hidden bg-[#b026ff] py-4 text-white shadow-[0_0_50px_rgba(176,38,255,0.3)]">
-        <div className="animate-marquee font-display flex whitespace-nowrap text-5xl font-black uppercase tracking-widest">
-          <span>CREATOR ARCHIVE • THE VIOLET HORIZON • CREATOR ARCHIVE • THE VIOLET HORIZON • CREATOR ARCHIVE • THE VIOLET HORIZON • </span>
-          <span>CREATOR ARCHIVE • THE VIOLET HORIZON • CREATOR ARCHIVE • THE VIOLET HORIZON • CREATOR ARCHIVE • THE VIOLET HORIZON • </span>
-        </div>
-      </div>
-
-      <div className="absolute bottom-1/4 -left-10 z-20 flex w-[120%] rotate-3 overflow-hidden bg-white py-2 text-black">
+    <main className="relative h-screen w-screen overflow-hidden bg-black font-sans text-white selection:bg-[#ccff00] selection:text-black">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-10 text-white">
         <div
-          className="animate-marquee font-display flex whitespace-nowrap text-3xl font-black uppercase tracking-widest"
-          style={{ animationDirection: "reverse", animationDuration: "15s" }}
+          className="pointer-events-none absolute inset-0 opacity-20 mix-blend-screen"
+          style={{
+            backgroundImage:
+              'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")',
+          }}
+        />
+
+        <motion.div style={{ skewX }} className="relative z-10 flex flex-col items-center">
+          <h1 className="font-serif text-[18vw] font-light leading-[0.6] tracking-tight text-gray-400 italic">
+            Yol
+          </h1>
+          <h1
+            className="text-[20vw] font-black leading-[0.8] tracking-tighter text-transparent uppercase"
+            style={{ WebkitTextStroke: '2px white' }}
+          >
+            YOOLA
+          </h1>
+        </motion.div>
+
+        <div className="absolute top-[15%] left-[10%] w-[25vw] max-w-[300px] aspect-[3/4] opacity-50 grayscale">
+          <Image
+            src={basePortrait.src}
+            alt={basePortrait.title}
+            fill
+            sizes="(max-width: 768px) 35vw, 25vw"
+            className="object-cover"
+          />
+        </div>
+
+        <div className="absolute right-[15%] bottom-[10%] aspect-square w-[30vw] max-w-[400px] overflow-hidden rounded-full opacity-30 grayscale">
+          <Image
+            src={baseOrb.src}
+            alt={baseOrb.title}
+            fill
+            sizes="(max-width: 768px) 40vw, 30vw"
+            className="object-cover"
+          />
+        </div>
+
+        <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 -rotate-12 overflow-hidden opacity-20">
+          <div className="animate-marquee flex whitespace-nowrap text-[8vw] font-black tracking-widest uppercase">
+            <span>YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦</span>
+          </div>
+        </div>
+      </div>
+
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden bg-[#ccff00] text-black"
+        style={{
+          WebkitMaskImage: maskImage,
+          maskImage,
+        }}
+      >
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage:
+              'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+
+        <motion.div
+          style={{ skewX: negativeSkewX, scale }}
+          className="relative z-10 flex flex-col items-center"
         >
-          <span>STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • </span>
-          <span>STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • STAY GOLD • FENOMENO • </span>
+          <h1 className="font-serif text-[22vw] font-black leading-[0.6] tracking-tighter text-[#ff003c] italic mix-blend-multiply -rotate-6">
+            Yol
+          </h1>
+          <h1 className="text-[24vw] font-black leading-[0.8] tracking-tighter text-black uppercase">
+            YOOLA
+          </h1>
+        </motion.div>
+
+        <div className="absolute top-[10%] left-[5%] aspect-[4/5] w-[35vw] max-w-[450px] rotate-6 mix-blend-exclusion shadow-2xl">
+          <Image
+            src={revealPortrait.src}
+            alt={revealPortrait.title}
+            fill
+            sizes="(max-width: 768px) 44vw, 35vw"
+            className="object-cover contrast-150 saturate-150"
+          />
+        </div>
+
+        <div className="absolute right-[5%] bottom-[5%] aspect-video w-[40vw] max-w-[500px] -rotate-12 mix-blend-color-burn">
+          <Image
+            src={revealWide.src}
+            alt={revealWide.title}
+            fill
+            sizes="(max-width: 768px) 48vw, 40vw"
+            className="object-cover contrast-200 hue-rotate-[35deg]"
+          />
+        </div>
+
+        <motion.div
+          className="absolute top-[20%] right-[20%] text-[30vw] leading-none text-[#b026ff] mix-blend-multiply"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+        >
+          ✦
+        </motion.div>
+
+        <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 rotate-12 overflow-hidden text-white mix-blend-difference">
+          <div
+            className="animate-marquee flex whitespace-nowrap text-[10vw] font-serif font-black tracking-widest italic"
+            style={{ animationDirection: 'reverse', animationDuration: '15s' }}
+          >
+            <span>PURE EXPRESSION ✦ NO RULES ✦ PURE EXPRESSION ✦ NO RULES ✦ PURE EXPRESSION ✦ NO RULES ✦</span>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="pointer-events-none absolute inset-0 z-30">
+        <motion.div
+          className="fixed top-0 left-0 z-50 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white mix-blend-difference"
+          style={{ x: mouseX, y: mouseY }}
+        />
+
+        <div className="pointer-events-auto absolute bottom-12 left-1/2 -translate-x-1/2">
+          <button
+            type="button"
+            onClick={handleEnterVoid}
+            className="group relative overflow-hidden rounded-full border border-white/30 bg-transparent px-12 py-6 transition-colors duration-500 hover:border-transparent"
+          >
+            <div className="absolute inset-0 origin-bottom scale-y-0 bg-white transition-transform duration-500 ease-[cubic-bezier(0.8,0,0.2,1)] group-hover:scale-y-100" />
+            <span className="relative z-10 text-xl font-black tracking-[0.2em] text-white uppercase transition-colors duration-500 group-hover:text-black">
+              Enter The Void
+            </span>
+          </button>
         </div>
       </div>
 
-      <div className="relative z-30 mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-center px-6 pt-32 pb-20 md:px-8">
-        <div className="grid items-center gap-12 xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="order-2 xl:order-1">
-            <div className="mb-8 inline-flex items-center gap-3 border border-white/15 bg-black/55 px-4 py-2 backdrop-blur">
-              <span className="h-2 w-2 rounded-full bg-[#ff72c9]" />
-              <span className="font-mono text-[11px] tracking-[0.35em] text-white/75 uppercase">
-                Archive Deck / Local Assets Online
-              </span>
-            </div>
-
-            <h1 className="font-display text-6xl leading-[0.92] font-black uppercase tracking-[-0.05em] text-white md:text-8xl xl:text-[8rem]">
-              Break the
-              <br />
-              <span className="text-[#b026ff]">limits</span>
-              <span className="text-white">.</span>
-            </h1>
-
-            <p className="mt-8 max-w-xl font-mono text-sm leading-7 text-white/72 md:text-base">
-              A neon archive of race-born portraits, dossier fragments, and unfinished
-              transmissions. The artwork is local now, the pages hit harder, and the
-              gallery opens full-screen like a vault.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Link
-                href="/gallery"
-                className="animate-glitch inline-flex items-center justify-center border-4 border-transparent bg-[#b026ff] px-10 py-5 font-display text-2xl font-black tracking-[0.18em] text-white uppercase transition-all duration-300 hover:scale-[1.03] hover:border-black hover:bg-white hover:text-black"
-              >
-                Enter Archive
-              </Link>
-              <Link
-                href="/writing"
-                className="inline-flex items-center justify-center border border-white/20 bg-black/45 px-8 py-5 font-mono text-xs tracking-[0.32em] text-white uppercase transition-colors hover:border-[#ff72c9] hover:text-[#ff72c9]"
-              >
-                Open Dossier Queue
-              </Link>
-            </div>
-
-            <div className="mt-12 grid gap-4 md:grid-cols-3">
-              {ribbonArtworks.map((artwork, index) => (
-                <div
-                  key={artwork.id}
-                  className={`file-frame relative overflow-hidden border border-white/10 bg-black/55 p-3 backdrop-blur ${
-                    index === 1 ? 'md:-translate-y-6' : ''
-                  }`}
-                >
-                  <div className="spotlight-violet animate-spotlight absolute inset-0 opacity-70" />
-                  <div className="relative aspect-[4/3] overflow-hidden border border-white/10">
-                    <Image
-                      src={artwork.src}
-                      alt={artwork.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="relative mt-3 flex items-center justify-between gap-3 font-mono text-[11px] tracking-[0.22em] text-white/70 uppercase">
-                    <span>{artwork.label}</span>
-                    <span>{artwork.category}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="order-1 flex justify-center xl:order-2 xl:justify-end">
-            <div className="relative w-full max-w-[540px]">
-              <div className="spotlight-violet animate-spotlight absolute -inset-16" />
-              <div className="group file-frame animate-drift relative ml-auto aspect-[5/7] w-[82vw] max-w-[500px] overflow-hidden border-[10px] border-[#b026ff] bg-black p-3 shadow-[24px_24px_0px_#b026ff] transition-all duration-300 hover:-translate-x-2 hover:-translate-y-2 hover:shadow-[36px_36px_0px_#b026ff] md:w-[36vw]">
-                <Image
-                  src={heroArtwork.src}
-                  alt={heroArtwork.title}
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 82vw, 36vw"
-                  className="object-cover grayscale-[0.08] contrast-110 transition-all duration-500 group-hover:scale-[1.02] group-hover:grayscale-0"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-[#b026ff]/10 mix-blend-screen" />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-                <div className="absolute top-5 left-5 -rotate-3 border border-black bg-white px-4 py-2 font-mono text-[11px] font-bold tracking-[0.3em] text-black uppercase">
-                  Classified // {heroArtwork.label}
-                </div>
-
-                <div className="absolute right-4 bottom-4 max-w-[75%] border border-white/15 bg-black/75 px-4 py-3 backdrop-blur">
-                  <p className="font-mono text-[10px] tracking-[0.34em] text-[#ff72c9] uppercase">
-                    {heroArtwork.category} / {heroArtwork.year}
-                  </p>
-                  <p className="mt-2 font-display text-2xl font-black tracking-tight text-white uppercase">
-                    {heroArtwork.title}
-                  </p>
-                </div>
-              </div>
-
-              <div className="absolute -right-2 -bottom-8 rotate-[8deg] border-4 border-black bg-white px-5 py-4 font-display text-5xl font-black text-black shadow-[10px_10px_0px_rgba(176,38,255,1)]">
-                10
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      {isTransitioning ? (
+        <motion.div
+          initial={{ scaleY: 0 }}
+          animate={{ scaleY: 1 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="fixed inset-0 z-[999] flex origin-bottom items-center justify-center bg-[#ccff00]"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="text-6xl font-black tracking-tighter text-black uppercase md:text-8xl"
+          >
+            Entering...
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </main>
   );
 }
