@@ -45,6 +45,53 @@
     background-size: 40px 40px;
   }
 
+  .bg-gallery-vault {
+    background-color: #05060b;
+    background-image:
+      radial-gradient(circle at 16% 18%, rgba(89, 140, 255, 0.2), transparent 28%),
+      radial-gradient(circle at 86% 12%, rgba(255, 114, 201, 0.22), transparent 26%),
+      radial-gradient(circle at 52% 82%, rgba(255, 213, 128, 0.12), transparent 32%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent 34%),
+      linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: auto, auto, auto, auto, 54px 54px, 54px 54px;
+  }
+
+  .bg-writing-folio {
+    background-color: #120b10;
+    background-image:
+      radial-gradient(circle at 18% 14%, rgba(255, 190, 135, 0.18), transparent 26%),
+      radial-gradient(circle at 78% 18%, rgba(255, 114, 201, 0.14), transparent 24%),
+      radial-gradient(circle at 54% 78%, rgba(143, 93, 255, 0.14), transparent 30%),
+      linear-gradient(135deg, rgba(255, 176, 133, 0.08), transparent 34%),
+      linear-gradient(180deg, rgba(37, 16, 27, 0.84), rgba(9, 8, 13, 0.98));
+    background-size: auto, auto, auto, auto, auto;
+  }
+
+  .bg-about-dossier {
+    background-color: #04050a;
+    background-image:
+      radial-gradient(circle at 18% 18%, rgba(94, 234, 212, 0.18), transparent 24%),
+      radial-gradient(circle at 82% 12%, rgba(176, 38, 255, 0.26), transparent 24%),
+      radial-gradient(circle at 50% 74%, rgba(255, 114, 201, 0.12), transparent 34%),
+      linear-gradient(160deg, rgba(255, 255, 255, 0.055), transparent 36%),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 44px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.035) 0,
+        rgba(255, 255, 255, 0.035) 1px,
+        transparent 1px,
+        transparent 44px
+      );
+    background-size: auto, auto, auto, auto, 44px 44px, 44px 44px;
+  }
+
   .bg-uma-stripes {
     background-image: repeating-linear-gradient(
       -45deg,
@@ -107,6 +154,47 @@
       radial-gradient(circle at 50% 30%, rgba(176, 38, 255, 0.26), transparent 36%),
       radial-gradient(circle at 70% 65%, rgba(255, 114, 201, 0.18), transparent 28%),
       radial-gradient(circle at 30% 75%, rgba(75, 222, 255, 0.14), transparent 26%);
+  }
+
+  .page-vignette {
+    background:
+      radial-gradient(circle at center, transparent 42%, rgba(0, 0, 0, 0.46) 100%);
+  }
+
+  .gallery-spectrum-overlay {
+    background:
+      linear-gradient(120deg, rgba(255, 255, 255, 0.05), transparent 36%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.035) 0,
+        rgba(255, 255, 255, 0.035) 1px,
+        transparent 1px,
+        transparent 18px
+      ),
+      radial-gradient(circle at 82% 24%, rgba(255, 114, 201, 0.18), transparent 24%);
+    mix-blend-mode: screen;
+  }
+
+  .writing-manuscript-overlay {
+    background:
+      radial-gradient(circle at 18% 28%, rgba(255, 220, 181, 0.12), transparent 24%),
+      radial-gradient(circle at 72% 24%, rgba(255, 173, 121, 0.16), transparent 24%),
+      linear-gradient(135deg, rgba(255, 226, 189, 0.08), transparent 38%);
+    mix-blend-mode: screen;
+  }
+
+  .about-signal-overlay {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 18%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(94, 234, 212, 0.08) 0,
+        rgba(94, 234, 212, 0.08) 2px,
+        transparent 2px,
+        transparent 22px
+      ),
+      radial-gradient(circle at 78% 18%, rgba(176, 38, 255, 0.18), transparent 22%);
+    mix-blend-mode: screen;
   }
 
   .file-frame {

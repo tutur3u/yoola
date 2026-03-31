@@ -7,10 +7,14 @@ import { getArtworkById, loreCapsules } from '@/lib/archive-data';
 
 export default function Writing() {
   return (
-    <div className="bg-yoola-grid relative min-h-screen max-w-6xl mx-auto overflow-hidden bg-[#050505] px-4 pt-32 pb-48 text-white md:px-8">
-      <div className="noise-overlay absolute inset-0 opacity-45" />
-      <div className="scanlines absolute inset-0 opacity-15" />
+    <div className="bg-writing-folio relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
+      <div className="pointer-events-none writing-manuscript-overlay absolute inset-0 opacity-80" />
+      <div className="pointer-events-none noise-overlay absolute inset-0 opacity-28" />
+      <div className="pointer-events-none page-vignette absolute inset-0 opacity-80" />
+      <div className="pointer-events-none absolute top-24 left-[-8%] h-64 w-64 rotate-12 rounded-[2rem] border border-[#ffb985]/10 bg-[#ffb985]/8 blur-3xl" />
+      <div className="pointer-events-none absolute right-[8%] bottom-16 h-48 w-80 -rotate-6 border border-white/6 bg-white/4 blur-2xl" />
 
+      <div className="relative z-10 mx-auto max-w-6xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -172,6 +176,7 @@ export default function Writing() {
             </motion.article>
           );
         })}
+      </div>
       </div>
     </div>
   );

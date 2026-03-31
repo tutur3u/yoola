@@ -25,10 +25,14 @@ export default function Gallery() {
   const featuredArtwork = archiveArtworks[0];
 
   return (
-    <div className="bg-yoola-grid relative min-h-screen max-w-7xl mx-auto overflow-hidden bg-[#050505] px-4 pt-32 pb-48 text-white md:px-8">
-      <div className="noise-overlay absolute inset-0 opacity-45" />
-      <div className="scanlines absolute inset-0 opacity-15" />
+    <div className="bg-gallery-vault relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
+      <div className="pointer-events-none gallery-spectrum-overlay absolute inset-0 opacity-90" />
+      <div className="pointer-events-none noise-overlay absolute inset-0 opacity-40" />
+      <div className="pointer-events-none scanlines absolute inset-0 opacity-10" />
+      <div className="pointer-events-none page-vignette absolute inset-0 opacity-90" />
+      <div className="pointer-events-none absolute top-20 right-[-10%] h-72 w-72 rounded-full border border-white/10 bg-white/5 blur-3xl" />
 
+      <div className="relative z-10 mx-auto max-w-7xl">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -174,6 +178,7 @@ export default function Gallery() {
             </button>
           </motion.div>
         ))}
+      </div>
       </div>
 
       <GalleryLightbox

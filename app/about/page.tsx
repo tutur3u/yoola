@@ -18,9 +18,14 @@ export default function About() {
   const sideArtwork = archiveArtworks[7];
 
   return (
-    <div className="bg-yoola-grid relative min-h-screen max-w-6xl mx-auto overflow-hidden bg-[#050505] px-4 pt-32 pb-48 text-white md:px-8">
-      <div className="noise-overlay absolute inset-0 opacity-45" />
-      <div className="scanlines absolute inset-0 opacity-15" />
+    <div className="bg-about-dossier relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
+      <div className="pointer-events-none about-signal-overlay absolute inset-0 opacity-85" />
+      <div className="pointer-events-none noise-overlay absolute inset-0 opacity-42" />
+      <div className="pointer-events-none scanlines absolute inset-0 opacity-14" />
+      <div className="pointer-events-none page-vignette absolute inset-0 opacity-85" />
+      <div className="pointer-events-none absolute top-10 left-[8%] h-56 w-56 rounded-full border border-cyan-300/12 bg-cyan-300/8 blur-3xl" />
+      <div className="pointer-events-none absolute right-[2%] bottom-12 h-72 w-72 rounded-full border border-[#b026ff]/10 bg-[#b026ff]/8 blur-3xl" />
+      <div className="relative z-10 mx-auto max-w-6xl">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -198,6 +203,7 @@ export default function About() {
           </div>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }
