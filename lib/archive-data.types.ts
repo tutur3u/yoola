@@ -81,6 +81,8 @@ export type YoolaArchiveData = {
   archiveArtworks: ArchiveArtwork[];
   artworkCategories: string[];
   featuredArtwork: ArchiveArtwork | null;
+  featuredArtworks: ArchiveArtwork[];
+  featuredLoreCapsules: LoreCapsule[];
   loreCapsules: LoreCapsule[];
   navigationItems: YoolaNavigationItem[];
   profile: YoolaProfile;

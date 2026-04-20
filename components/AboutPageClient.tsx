@@ -7,6 +7,7 @@ import type {
   YoolaProfile,
   YoolaSocialLink,
 } from "@/lib/archive-data";
+import { useYoolaArchiveDataQuery } from "@/lib/yoola-query";
 import { motion } from "motion/react";
 import Image from "next/image";
 import type { IconType } from "react-icons";
@@ -23,6 +24,14 @@ const iconMap: Record<string, IconType> = {
   x: FaXTwitter,
   youtube: FaYoutube,
 };
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+}
 
 function resolveArtwork(
   artworks: ArchiveArtwork[],
@@ -46,14 +55,22 @@ function resolveSocialIcon(link: YoolaSocialLink) {
   return iconMap[normalizedKey] ?? FaLink;
 }
 
-type AboutPageClientProps = {
-  artworks: ArchiveArtwork[];
-  profile: YoolaProfile;
-  section: YoolaPageSection | null;
-};
-
-export default function AboutPageClient({ artworks, profile, section }: AboutPageClientProps) {
-  const sectionProfileData = section?.profileData ?? {};
+export default function AboutPageClient() {
+  const archiveQuery = useYoolaArchiveDataQuery();
+  const artworks = archiveQuery.data?.archiveArtworks ?? [];
+  const profile: YoolaProfile = archiveQuery.data?.profile ?? {
+    brand: "YOOLA",
+    entityId: null,
+    markers: [],
+    name: "Yol Yoola",
+    rank: null,
+    role: "Creator // Artist",
+    socialLinks: [],
+    stats: [],
+    statusLabel: null,
+  };
+  const section: YoolaPageSection | null = archiveQuery.data?.sections.about ?? null;
+  const sectionProfileData = asRecord(section?.profileData);
   const profileArtwork = resolveArtwork(artworks, sectionProfileData, "primaryArtworkSlug", 0);
   const sideArtwork = resolveArtwork(artworks, sectionProfileData, "secondaryArtworkSlug", 1);
   const profileMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
@@ -194,73 +211,23 @@ export default function AboutPageClient({ artworks, profile, section }: AboutPag
                   </div>
                 ) : null}
 
-                {profile.markers.length > 0 ? (
-                  <div className="clip-ticket border border-white/10 bg-white px-5 py-6 text-black shadow-[12px_12px_0px_rgba(176,38,255,0.8)]">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-black/70">
-                      Personal markers
-                    </p>
-                    <div className="mt-4 space-y-3 font-mono text-xs uppercase tracking-[0.22em] text-black/75">
-                      {profile.markers.map((marker) => (
-                        <div
-                          key={`${marker.label}-${marker.value}`}
-                          className="flex justify-between border-black/15 pb-2 not-last:border-b"
-                        >
-                          <span>{marker.label}</span>
-                          <span>{marker.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
-              {profile.stats.length > 0 ? (
-                <div className="space-y-6">
-                  <h2 className="flex items-center gap-4 font-mono text-xl font-bold uppercase tracking-widest text-[#b026ff]">
-                    <span className="h-[2px] w-8 bg-[#b026ff]" />
-                    System parameters
-                  </h2>
-                  <div className="grid gap-4 font-mono text-sm">
-                    {profile.stats.map((stat, index) => {
-                      const numericValue = typeof stat.value === "number" ? stat.value : null;
-                      const percentage =
-                        numericValue !== null && stat.max && stat.max > 0
-                          ? Math.min(100, (numericValue / stat.max) * 100)
-                          : null;
-                      const blocks = percentage !== null ? Math.floor(percentage / 5) : 0;
-                      const emptyBlocks = 20 - blocks;
-
-                      return (
-                        <motion.div
-                          key={stat.label}
-                          initial={{ opacity: 0, x: 20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.4, delay: index * 0.08 }}
-                          className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4"
-                        >
-                          <div className="w-24 shrink-0 text-white/60">{stat.label}</div>
-                          <div className="flex flex-grow items-center gap-2 text-[#b026ff]">
-                            <span>[</span>
-                            <span className="tracking-tighter">
-                              {percentage !== null ? (
-                                <>
-                                  {"█".repeat(blocks)}
-                                  <span className="text-white/20">{"█".repeat(emptyBlocks)}</span>
-                                </>
-                              ) : (
-                                <span className="text-white/35">DATA</span>
-                              )}
-                            </span>
-                            <span>]</span>
-                          </div>
-                          <div className="w-16 shrink-0 text-right">{stat.value}</div>
-                        </motion.div>
-                      );
-                    })}
+                <div className="clip-ticket bg-white px-6 py-6 text-black shadow-[14px_14px_0px_rgba(176,38,255,0.9)]">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-black/70">
+                    Signal sheet
+                  </p>
+                  <div className="mt-4 space-y-3 font-mono text-xs uppercase tracking-[0.24em] text-black/75">
+                    {profile.markers.map((marker) => (
+                      <div
+                        key={marker.label}
+                        className="flex justify-between border-b border-black/10 pb-2 last:border-b-0 last:pb-0"
+                      >
+                        <span>{marker.label}</span>
+                        <span>{marker.value}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ) : null}
+              </div>
             </div>
           </div>
         </motion.div>

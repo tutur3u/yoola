@@ -12,10 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ArchiveArtwork } from "@/lib/archive-data";
-
-type HomePageClientProps = {
-  artworks: ArchiveArtwork[];
-};
+import { useYoolaArchiveDataQuery } from "@/lib/yoola-query";
 
 function ArtworkPane({
   artwork,
@@ -51,7 +48,9 @@ function ArtworkPane({
   );
 }
 
-export default function HomePageClient({ artworks }: HomePageClientProps) {
+export default function HomePageClient() {
+  const archiveQuery = useYoolaArchiveDataQuery();
+  const artworks = archiveQuery.data?.archiveArtworks ?? [];
   const [isMounted, setIsMounted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const router = useRouter();
@@ -132,7 +131,7 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
 
         <ArtworkPane
           artwork={basePortrait}
-          className="absolute top-[15%] left-[10%] w-[25vw] max-w-[300px] aspect-[3/4] opacity-50 grayscale"
+          className="absolute top-[15%] left-[10%] aspect-[3/4] w-[25vw] max-w-[300px] opacity-50 grayscale"
           sizes="(max-width: 768px) 35vw, 25vw"
           imageClassName="object-cover"
         />

@@ -14,6 +14,7 @@
     "format-and-lint:fix": "bun run fmt:fix && bun run lint:fix"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.99.2",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.8.0",
@@ -25,7 +26,7 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.5.0",
-    "tuturuuu": "^0.2.1"
+    "tuturuuu": "^0.2.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",

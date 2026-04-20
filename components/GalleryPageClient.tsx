@@ -1,17 +1,14 @@
 "use client";
 
-import MarkdownContent from "@/components/MarkdownContent";
+import FeaturedArtworkCarousel from "@/components/FeaturedArtworkCarousel";
 import GalleryLightbox from "@/components/GalleryLightbox";
+import MarkdownContent from "@/components/MarkdownContent";
+import { useInfiniteVisibleCount } from "@/hooks/use-infinite-visible-count";
 import type { ArchiveArtwork, YoolaPageSection } from "@/lib/archive-data";
+import { useYoolaArchiveDataQuery } from "@/lib/yoola-query";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-
-type GalleryPageClientProps = {
-  artworks: ArchiveArtwork[];
-  categories: string[];
-  section: YoolaPageSection | null;
-};
 
 function ArtworkCardImage({ artwork }: { artwork: ArchiveArtwork }) {
   if (!artwork.src) {
@@ -55,30 +52,39 @@ function ArtworkCardImage({ artwork }: { artwork: ArchiveArtwork }) {
   );
 }
 
-export default function GalleryPageClient({
-  artworks,
-  categories,
-  section,
-}: GalleryPageClientProps) {
+export default function GalleryPageClient() {
+  const archiveQuery = useYoolaArchiveDataQuery();
+  const artworks: ArchiveArtwork[] = archiveQuery.data?.archiveArtworks ?? [];
+  const categories = archiveQuery.data?.artworkCategories ?? [];
+  const section: YoolaPageSection | null = archiveQuery.data?.sections.gallery ?? null;
   const filters = useMemo(
     () => ["ALL", ...categories.filter((category) => category !== "ALL")],
     [categories],
   );
   const [activeFilter, setActiveFilter] = useState(filters[0] ?? "ALL");
   const [activeArtworkId, setActiveArtworkId] = useState<string | null>(null);
+  const [viewerArtworks, setViewerArtworks] = useState<ArchiveArtwork[]>([]);
 
   const visibleArtworks =
     activeFilter === "ALL" ? artworks : artworks.filter((art) => art.category === activeFilter);
+  const { hasMore, sentinelRef, visibleCount } = useInfiniteVisibleCount({
+    pageSize: 12,
+    resetKey: activeFilter,
+    totalCount: visibleArtworks.length,
+  });
+  const displayedArtworks = visibleArtworks.slice(0, visibleCount);
+  const featuredArtworks = archiveQuery.data?.featuredArtworks ?? [];
+  const heroMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
 
   const activeLightboxIndex =
     activeArtworkId === null
       ? null
-      : visibleArtworks.findIndex((artwork) => artwork.id === activeArtworkId);
+      : viewerArtworks.findIndex((artwork) => artwork.id === activeArtworkId);
 
-  const featuredArtwork = artworks[0] ?? null;
-  const heroMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
-
-  console.log("GalleryPageClient render", { artworks, categories, section });
+  const openViewer = (artworkList: ArchiveArtwork[], artworkId: string) => {
+    setViewerArtworks(artworkList);
+    setActiveArtworkId(artworkId);
+  };
 
   return (
     <div className="bg-gallery-vault relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
@@ -88,15 +94,15 @@ export default function GalleryPageClient({
       <div className="pointer-events-none page-vignette absolute inset-0 opacity-90" />
       <div className="pointer-events-none absolute top-20 right-[-10%] h-72 w-72 rounded-full border border-white/10 bg-white/5 blur-3xl" />
 
-      <div className="relative z-10 mx-auto max-w-7xl">
+      <div className="relative z-10 mx-auto max-w-[90rem]">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative mb-16"
+          className="relative mb-10"
         >
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-            <div>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+            <div className="lg:max-w-2xl xl:max-w-3xl">
               <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
                 {section?.subtitle ?? "Visual archive"}
               </p>
@@ -110,41 +116,13 @@ export default function GalleryPageClient({
               ) : null}
             </div>
 
-            {featuredArtwork ? (
-              <div className="file-frame relative overflow-hidden border border-white/10 bg-black/65 p-3 backdrop-blur">
-                <div className="spotlight-violet animate-spotlight absolute inset-0 opacity-80" />
-                <div className="relative aspect-[16/9] overflow-hidden border border-white/10">
-                  {featuredArtwork.src ? (
-                    <Image
-                      src={featuredArtwork.src}
-                      alt={featuredArtwork.alt || featuredArtwork.title}
-                      fill
-                      priority
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(176,38,255,0.18),_transparent_45%),linear-gradient(180deg,_rgba(255,255,255,0.05),_rgba(0,0,0,0.75))]" />
-                  )}
-                </div>
-                <div className="relative mt-3 flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#ff72c9]">
-                      Featured file / {featuredArtwork.label}
-                    </p>
-                    <h2 className="mt-2 font-display text-2xl font-black tracking-tight text-white uppercase">
-                      {featuredArtwork.title}
-                    </h2>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveArtworkId(featuredArtwork.id)}
-                    className="border border-white/20 bg-black/65 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.32em] text-white transition-colors hover:border-[#b026ff] hover:text-[#ff72c9]"
-                  >
-                    Fullscreen View
-                  </button>
-                </div>
-              </div>
+            {featuredArtworks.length > 0 ? (
+              <FeaturedArtworkCarousel
+                artworks={featuredArtworks}
+                onOpenFullscreen={(artworkId) =>
+                  openViewer(featuredArtworks, artworkId)
+                }
+              />
             ) : null}
           </div>
         </motion.div>
@@ -172,7 +150,7 @@ export default function GalleryPageClient({
 
         {visibleArtworks.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
-            {visibleArtworks.map((art, index) => (
+            {displayedArtworks.map((art, index) => (
               <motion.div
                 key={art.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -189,7 +167,7 @@ export default function GalleryPageClient({
               >
                 <button
                   type="button"
-                  onClick={() => setActiveArtworkId(art.id)}
+                  onClick={() => openViewer(visibleArtworks, art.id)}
                   className="file-frame relative block w-full overflow-hidden border border-white/10 bg-black/70 p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#b026ff] hover:shadow-[0_20px_70px_rgba(176,38,255,0.2)]"
                 >
                   <div className="spotlight-violet absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-80" />
@@ -222,6 +200,13 @@ export default function GalleryPageClient({
                 </button>
               </motion.div>
             ))}
+            {hasMore ? (
+              <div
+                ref={sentinelRef}
+                aria-hidden="true"
+                className="md:col-span-12 h-20 rounded-[1.2rem] border border-white/10 border-dashed bg-black/40"
+              />
+            ) : null}
           </div>
         ) : (
           <div className="file-frame border border-white/10 bg-black/55 p-10 backdrop-blur">
@@ -239,12 +224,15 @@ export default function GalleryPageClient({
       </div>
 
       <GalleryLightbox
-        artworks={visibleArtworks}
+        artworks={viewerArtworks}
         activeIndex={
           activeLightboxIndex !== null && activeLightboxIndex >= 0 ? activeLightboxIndex : null
         }
-        onClose={() => setActiveArtworkId(null)}
-        onSelect={(index) => setActiveArtworkId(visibleArtworks[index]?.id ?? null)}
+        onClose={() => {
+          setActiveArtworkId(null);
+          setViewerArtworks([]);
+        }}
+        onSelect={(index) => setActiveArtworkId(viewerArtworks[index]?.id ?? null)}
       />
     </div>
   );

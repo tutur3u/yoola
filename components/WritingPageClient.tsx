@@ -1,22 +1,28 @@
 "use client";
 
 import MarkdownContent from "@/components/MarkdownContent";
+import { useInfiniteVisibleCount } from "@/hooks/use-infinite-visible-count";
+import { useYoolaArchiveDataQuery } from "@/lib/yoola-query";
 import type { ArchiveArtwork, LoreCapsule, YoolaPageSection } from "@/lib/archive-data";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 
+function asRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+}
+
 function getSectionPanels(section: YoolaPageSection | null) {
-  const profileData = section?.profileData ?? {};
+  const profileData = asRecord(section?.profileData);
   const panels = Array.isArray(profileData.panels) ? profileData.panels : [];
 
   return panels
-    .map((panel) => (panel && typeof panel === "object" && !Array.isArray(panel) ? panel : null))
+    .map((panel) => asRecord(panel))
     .map((panel) => {
-      if (!panel) {
-        return null;
-      }
-
       const title = typeof panel.title === "string" ? panel.title.trim() : null;
       const body = typeof panel.body === "string" ? panel.body.trim() : null;
       if (!title || !body) {
@@ -28,19 +34,15 @@ function getSectionPanels(section: YoolaPageSection | null) {
     .filter((panel): panel is { title: string; body: string } => Boolean(panel));
 }
 
-type WritingPageClientProps = {
-  artworks: ArchiveArtwork[];
-  loreCapsules: LoreCapsule[];
-  section: YoolaPageSection | null;
-};
-
-export default function WritingPageClient({
-  artworks,
-  loreCapsules,
-  section,
-}: WritingPageClientProps) {
+export default function WritingPageClient() {
+  const archiveQuery = useYoolaArchiveDataQuery();
+  const artworks: ArchiveArtwork[] = archiveQuery.data?.archiveArtworks ?? [];
+  const loreCapsules: LoreCapsule[] = archiveQuery.data?.loreCapsules ?? [];
+  const featuredLoreCapsules: LoreCapsule[] = archiveQuery.data?.featuredLoreCapsules ?? [];
+  const section: YoolaPageSection | null = archiveQuery.data?.sections.writing ?? null;
   const artworkById = new Map(artworks.map((artwork) => [artwork.id, artwork]));
-  const featuredCapsule = loreCapsules[0] ?? null;
+  const featuredCapsule = featuredLoreCapsules[0] ?? null;
+  const secondaryFeaturedCapsules = featuredLoreCapsules.slice(1, 4);
   const featuredArtwork = featuredCapsule?.artworkId
     ? (artworkById.get(featuredCapsule.artworkId) ?? null)
     : null;
@@ -50,6 +52,12 @@ export default function WritingPageClient({
   const publishedCount = loreCapsules.filter(
     (capsule) => capsule.status.toLowerCase() === "published",
   ).length;
+  const { hasMore, sentinelRef, visibleCount } = useInfiniteVisibleCount({
+    pageSize: 10,
+    resetKey: section?.slug ?? "writing",
+    totalCount: loreCapsules.length,
+  });
+  const displayedLoreCapsules = loreCapsules.slice(0, visibleCount);
 
   return (
     <div className="bg-writing-folio relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
@@ -144,13 +152,34 @@ export default function WritingPageClient({
               </div>
             </div>
 
-            {calloutPanels.length > 0 ? (
+            {calloutPanels.length > 0 || secondaryFeaturedCapsules.length > 0 ? (
               <div className="grid gap-4">
+                {secondaryFeaturedCapsules.map((capsule, index) => (
+                  <Link
+                    key={capsule.slug}
+                    href={`/writing/${capsule.slug}`}
+                    className={`file-frame border border-white/10 bg-black/55 p-5 backdrop-blur transition-colors hover:border-[#ff72c9] ${
+                      index === 1 ? "md:translate-x-6" : ""
+                    }`}
+                  >
+                    <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-[#ff72c9]">
+                      Featured entry / {capsule.channel}
+                    </p>
+                    <h3 className="mt-3 font-display text-2xl font-black tracking-tight text-white uppercase">
+                      {capsule.title}
+                    </h3>
+                    <p className="mt-3 font-mono text-sm leading-6 text-white/65">
+                      {capsule.teaser}
+                    </p>
+                  </Link>
+                ))}
                 {calloutPanels.slice(0, 3).map((panel, index) => (
                   <div
                     key={panel.title}
                     className={`file-frame border border-white/10 bg-black/55 p-5 backdrop-blur ${
-                      index === 1 ? "md:translate-x-6" : ""
+                      secondaryFeaturedCapsules.length === 0 && index === 1
+                        ? "md:translate-x-6"
+                        : ""
                     }`}
                   >
                     <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-[#ff72c9]">
@@ -166,7 +195,7 @@ export default function WritingPageClient({
 
         {loreCapsules.length > 0 ? (
           <div className="flex flex-col border-t-2 border-white/10">
-            {loreCapsules.map((post, index) => {
+            {displayedLoreCapsules.map((post, index) => {
               const artwork = post.artworkId ? (artworkById.get(post.artworkId) ?? null) : null;
 
               return (
@@ -237,6 +266,13 @@ export default function WritingPageClient({
                 </motion.article>
               );
             })}
+            {hasMore ? (
+              <div
+                ref={sentinelRef}
+                aria-hidden="true"
+                className="h-20 border-b-2 border-white/10 bg-black/20"
+              />
+            ) : null}
           </div>
         ) : (
           <div className="file-frame border border-white/10 bg-black/55 p-10 backdrop-blur">
