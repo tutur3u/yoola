@@ -9,7 +9,9 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint:fix": "oxlint --fix",
+    "format-and-lint": "bun run fmt && bun run lint",
+    "format-and-lint:fix": "bun run fmt:fix && bun run lint:fix"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
