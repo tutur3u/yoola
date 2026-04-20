@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { AnimatePresence, motion } from 'motion/react';
-import { useEffect } from 'react';
-import type { ArchiveArtwork } from '@/lib/archive-data';
+import Image from "next/image";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
+import type { ArchiveArtwork } from "@/lib/archive-data";
 
 type GalleryLightboxProps = {
   artworks: ArchiveArtwork[];
@@ -24,29 +24,29 @@ export default function GalleryLightbox({
     }
 
     const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
         return;
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         onSelect((activeIndex + 1) % artworks.length);
         return;
       }
 
-      if (event.key === 'ArrowLeft') {
+      if (event.key === "ArrowLeft") {
         onSelect((activeIndex - 1 + artworks.length) % artworks.length);
       }
     };
 
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener("keydown", onKeyDown);
 
     return () => {
       document.body.style.overflow = originalOverflow;
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [activeIndex, artworks.length, onClose, onSelect]);
 
@@ -73,7 +73,7 @@ export default function GalleryLightbox({
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex h-full max-h-[92vh] w-full max-w-7xl flex-col overflow-hidden border border-white/15 bg-[#090909] shadow-[0_0_120px_rgba(176,38,255,0.25)]"
             onClick={(event) => event.stopPropagation()}
           >
@@ -145,8 +145,8 @@ export default function GalleryLightbox({
                     onClick={() => onSelect(index)}
                     className={`group relative h-20 w-16 shrink-0 overflow-hidden border md:h-24 md:w-20 ${
                       index === currentIndex
-                        ? 'border-[#ff72c9] shadow-[0_0_24px_rgba(255,114,201,0.45)]'
-                        : 'border-white/10 hover:border-white/35'
+                        ? "border-[#ff72c9] shadow-[0_0_24px_rgba(255,114,201,0.45)]"
+                        : "border-white/10 hover:border-white/35"
                     }`}
                     aria-label={`View ${artwork.title}`}
                   >

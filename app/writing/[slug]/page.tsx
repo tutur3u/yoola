@@ -1,11 +1,11 @@
-import MarkdownContent from '@/components/MarkdownContent';
-import { getArtworkById, getLoreCapsule, getYoolaArchiveData } from '@/lib/archive-data';
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import MarkdownContent from "@/components/MarkdownContent";
+import { getArtworkById, getLoreCapsule, getYoolaArchiveData } from "@/lib/archive-data";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
 function asRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as Record<string, unknown>;
   }
 
@@ -13,12 +13,10 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function asString(value: unknown) {
-  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
-export default async function WritingCapsulePage(
-  props: PageProps<'/writing/[slug]'>
-) {
+export default async function WritingCapsulePage(props: PageProps<"/writing/[slug]">) {
   const { slug } = await props.params;
   const capsule = await getLoreCapsule(slug);
 
@@ -43,7 +41,7 @@ export default async function WritingCapsulePage(
           href="/writing"
           className="inline-flex border border-white/20 bg-black/50 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.32em] text-white transition-colors hover:border-[#ff72c9] hover:text-[#ff72c9]"
         >
-          ← Back to {writingSection?.title ?? 'Lore'}
+          ← Back to {writingSection?.title ?? "Lore"}
         </Link>
 
         <div className="file-frame border border-white/10 bg-black/72 p-6 backdrop-blur md:p-8">

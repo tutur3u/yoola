@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   motion,
@@ -7,11 +7,11 @@ import {
   useSpring,
   useTransform,
   useVelocity,
-} from 'motion/react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import type { ArchiveArtwork } from '@/lib/archive-data';
+} from "motion/react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import type { ArchiveArtwork } from "@/lib/archive-data";
 
 type HomePageClientProps = {
   artworks: ArchiveArtwork[];
@@ -87,10 +87,10 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
       mouseY.set(event.clientY);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, [mouseX, mouseY]);
 
@@ -102,7 +102,7 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
     setIsTransitioning(true);
 
     window.setTimeout(() => {
-      router.push('/gallery');
+      router.push("/gallery");
     }, 800);
   };
 
@@ -124,7 +124,7 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
           </h1>
           <h1
             className="text-[20vw] font-black leading-[0.8] tracking-tighter text-transparent uppercase"
-            style={{ WebkitTextStroke: '2px #d6b1ff' }}
+            style={{ WebkitTextStroke: "2px #d6b1ff" }}
           >
             YOOLA
           </h1>
@@ -146,7 +146,9 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
 
         <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 -rotate-12 overflow-hidden opacity-20">
           <div className="animate-marquee flex whitespace-nowrap text-[8vw] font-black tracking-widest text-[#b48cff] uppercase">
-            <span>YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦</span>
+            <span>
+              YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦ YOL YOOLA ✦ THE NEW ERA ✦
+            </span>
           </div>
         </div>
       </div>
@@ -162,8 +164,8 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
           className="absolute inset-0 opacity-25"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
+              "linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
           }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,_rgba(255,114,201,0.22),_transparent_25%),radial-gradient(circle_at_80%_70%,_rgba(98,220,255,0.16),_transparent_22%)]" />
@@ -197,7 +199,7 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
         <motion.div
           className="absolute top-[20%] right-[20%] text-[30vw] leading-none text-[#d28dff] opacity-80 mix-blend-screen"
           animate={{ rotate: -360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
         >
           ✦
         </motion.div>
@@ -205,9 +207,11 @@ export default function HomePageClient({ artworks }: HomePageClientProps) {
         <div className="pointer-events-none absolute top-1/2 left-1/2 w-[200vw] -translate-x-1/2 -translate-y-1/2 rotate-12 overflow-hidden text-[#f7eaff] opacity-75">
           <div
             className="animate-marquee flex whitespace-nowrap text-[10vw] font-serif font-black tracking-widest italic"
-            style={{ animationDirection: 'reverse', animationDuration: '15s' }}
+            style={{ animationDirection: "reverse", animationDuration: "15s" }}
           >
-            <span>PURE EXPRESSION ✦ NO RULES ✦ PURE EXPRESSION ✦ NO RULES ✦ PURE EXPRESSION ✦ NO RULES ✦</span>
+            <span>
+              PURE EXPRESSION ✦ NO RULES ✦ PURE EXPRESSION ✦ NO RULES ✦ PURE EXPRESSION ✦ NO RULES ✦
+            </span>
           </div>
         </div>
       </motion.div>

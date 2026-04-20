@@ -1,4 +1,4 @@
-export type ArtworkOrientation = 'portrait' | 'landscape' | 'square';
+export type ArtworkOrientation = "portrait" | "landscape" | "square";
 
 export type ArchiveArtwork = {
   id: string;

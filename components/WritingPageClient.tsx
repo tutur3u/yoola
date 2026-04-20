@@ -1,17 +1,13 @@
-'use client';
+"use client";
 
-import MarkdownContent from '@/components/MarkdownContent';
-import type {
-  ArchiveArtwork,
-  LoreCapsule,
-  YoolaPageSection,
-} from '@/lib/archive-data';
-import { motion } from 'motion/react';
-import Image from 'next/image';
-import Link from 'next/link';
+import MarkdownContent from "@/components/MarkdownContent";
+import type { ArchiveArtwork, LoreCapsule, YoolaPageSection } from "@/lib/archive-data";
+import { motion } from "motion/react";
+import Image from "next/image";
+import Link from "next/link";
 
 function asRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
     return value as Record<string, unknown>;
   }
 
@@ -25,8 +21,8 @@ function getSectionPanels(section: YoolaPageSection | null) {
   return panels
     .map((panel) => asRecord(panel))
     .map((panel) => {
-      const title = typeof panel.title === 'string' ? panel.title.trim() : null;
-      const body = typeof panel.body === 'string' ? panel.body.trim() : null;
+      const title = typeof panel.title === "string" ? panel.title.trim() : null;
+      const body = typeof panel.body === "string" ? panel.body.trim() : null;
       if (!title || !body) {
         return null;
       }
@@ -50,13 +46,13 @@ export default function WritingPageClient({
   const artworkById = new Map(artworks.map((artwork) => [artwork.id, artwork]));
   const featuredCapsule = loreCapsules[0] ?? null;
   const featuredArtwork = featuredCapsule?.artworkId
-    ? artworkById.get(featuredCapsule.artworkId) ?? null
+    ? (artworkById.get(featuredCapsule.artworkId) ?? null)
     : null;
   const heroMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
   const calloutPanels = getSectionPanels(section);
   const uniqueTagCount = new Set(loreCapsules.flatMap((capsule) => capsule.tags)).size;
   const publishedCount = loreCapsules.filter(
-    (capsule) => capsule.status.toLowerCase() === 'published'
+    (capsule) => capsule.status.toLowerCase() === "published",
   ).length;
 
   return (
@@ -71,16 +67,16 @@ export default function WritingPageClient({
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="mb-16"
         >
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
-                {section?.subtitle ?? 'Story archive'}
+                {section?.subtitle ?? "Story archive"}
               </p>
               <h1 className="mt-4 font-display text-6xl font-black tracking-[-0.06em] text-white uppercase md:text-8xl">
-                {section?.title ?? '[ Lore ]'}
+                {section?.title ?? "[ Lore ]"}
               </h1>
               {heroMarkdown ? (
                 <div className="mt-5 max-w-2xl">
@@ -158,15 +154,13 @@ export default function WritingPageClient({
                   <div
                     key={panel.title}
                     className={`file-frame border border-white/10 bg-black/55 p-5 backdrop-blur ${
-                      index === 1 ? 'md:translate-x-6' : ''
+                      index === 1 ? "md:translate-x-6" : ""
                     }`}
                   >
                     <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-[#ff72c9]">
                       {panel.title}
                     </p>
-                    <p className="mt-3 font-mono text-sm leading-6 text-white/65">
-                      {panel.body}
-                    </p>
+                    <p className="mt-3 font-mono text-sm leading-6 text-white/65">{panel.body}</p>
                   </div>
                 ))}
               </div>
@@ -177,14 +171,14 @@ export default function WritingPageClient({
         {loreCapsules.length > 0 ? (
           <div className="flex flex-col border-t-2 border-white/10">
             {loreCapsules.map((post, index) => {
-              const artwork = post.artworkId ? artworkById.get(post.artworkId) ?? null : null;
+              const artwork = post.artworkId ? (artworkById.get(post.artworkId) ?? null) : null;
 
               return (
                 <motion.article
                   key={post.slug}
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: '-50px' }}
+                  viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
                   className="group relative flex flex-col items-start gap-6 border-b-2 border-white/10 px-4 py-8 transition-colors duration-300 hover:bg-[#b026ff]/18 md:flex-row md:items-center md:gap-12"
                 >

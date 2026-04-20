@@ -1,5 +1,5 @@
-import WritingPageClient from '@/components/WritingPageClient';
-import { getYoolaArchiveData } from '@/lib/archive-data';
+import WritingPageClient from "@/components/WritingPageClient";
+import { getYoolaArchiveData } from "@/lib/archive-data";
 
 export default async function WritingPage() {
   const { archiveArtworks, loreCapsules, sections } = await getYoolaArchiveData();

@@ -1,9 +1,9 @@
-import { cache } from 'react';
+import { cache } from "react";
 import {
   buildEpmNavigationItems,
   createTuturuuuClient,
   type YoolaExternalProjectLoadingData,
-} from '@/lib/tuturuuu-sdk';
+} from "@/lib/tuturuuu-sdk";
 import {
   createFallbackSection,
   normalizeArtwork,
@@ -12,8 +12,8 @@ import {
   normalizeSection,
   resolveCollectionPath,
   toProfileDataRecord,
-} from '@/lib/archive-data.normalizers';
-import type { YoolaArchiveData, YoolaNavigationItem } from '@/lib/archive-data.types';
+} from "@/lib/archive-data.normalizers";
+import type { YoolaArchiveData, YoolaNavigationItem } from "@/lib/archive-data.types";
 
 export type {
   ArchiveArtwork,
@@ -26,30 +26,29 @@ export type {
   YoolaProfileMarker,
   YoolaProfileStat,
   YoolaSocialLink,
-} from '@/lib/archive-data.types';
+} from "@/lib/archive-data.types";
 
 const DEFAULT_TUTURUUU_BASE_URL =
   process.env.TUTURUUU_API_BASE_URL ??
   process.env.NEXT_PUBLIC_TUTURUUU_API_BASE_URL ??
-  'https://tuturuuu.com/api/v1';
+  "https://tuturuuu.com/api/v1";
 
 const DELIVERY_REVALIDATE_SECONDS = 60;
 
 export const defaultNavigationItems: YoolaNavigationItem[] = [
-  { name: 'INDEX', path: '/' },
-  { name: 'ARCHIVE', path: '/gallery' },
-  { name: 'LORE', path: '/writing' },
-  { name: 'ABOUT', path: '/about' },
+  { name: "INDEX", path: "/" },
+  { name: "ARCHIVE", path: "/gallery" },
+  { name: "LORE", path: "/writing" },
+  { name: "ABOUT", path: "/about" },
 ];
 
 function getYoolaWorkspaceId() {
   const workspaceId =
-    process.env.TUTURUUU_YOOLA_WORKSPACE_ID ??
-    process.env.NEXT_PUBLIC_TUTURUUU_YOOLA_WORKSPACE_ID;
+    process.env.TUTURUUU_YOOLA_WORKSPACE_ID ?? process.env.NEXT_PUBLIC_TUTURUUU_YOOLA_WORKSPACE_ID;
 
   if (!workspaceId?.trim()) {
     throw new Error(
-      '[yoola] Missing TUTURUUU_YOOLA_WORKSPACE_ID. Copy .env.example to .env.local and point it at the EPM workspace that uses the yoola adapter.'
+      "[yoola] Missing TUTURUUU_YOOLA_WORKSPACE_ID. Copy .env.example to .env.local and point it at the EPM workspace that uses the yoola adapter.",
     );
   }
 
@@ -57,7 +56,7 @@ function getYoolaWorkspaceId() {
 }
 
 function toUpperLabel(value: unknown, fallback: string) {
-  return typeof value === 'string' && value.trim().length > 0
+  return typeof value === "string" && value.trim().length > 0
     ? value.trim().toUpperCase()
     : fallback;
 }
@@ -68,7 +67,7 @@ async function createClient(baseUrl: string) {
     fetch: (input, init) =>
       fetch(input, {
         ...init,
-        cache: 'force-cache',
+        cache: "force-cache",
         next: { revalidate: DELIVERY_REVALIDATE_SECONDS },
       }),
   });
@@ -82,9 +81,9 @@ const getYoolaArchiveDataInternal = cache(async (): Promise<YoolaArchiveData> =>
     const client = await createClient(baseUrl);
     const delivery = await client.externalProjects.getDelivery(workspaceId);
 
-    if (!delivery.loadingData || delivery.loadingData.adapter !== 'yoola') {
+    if (!delivery.loadingData || delivery.loadingData.adapter !== "yoola") {
       throw new Error(
-        `[yoola] Workspace ${workspaceId} is not bound to an external project using the yoola adapter.`
+        `[yoola] Workspace ${workspaceId} is not bound to an external project using the yoola adapter.`,
       );
     }
 
@@ -92,39 +91,39 @@ const getYoolaArchiveDataInternal = cache(async (): Promise<YoolaArchiveData> =>
     const archiveArtworks = loadingData.artworks.map(normalizeArtwork);
     const entriesBySlug = new Map(
       delivery.collections.flatMap((collection) =>
-        collection.entries.map((entry) => [entry.slug, entry] as const)
-      )
+        collection.entries.map((entry) => [entry.slug, entry] as const),
+      ),
     );
     const loreCapsules = loadingData.loreCapsules.map((item) =>
-      normalizeLoreCapsule(item, entriesBySlug.get(item.slug) ?? null)
+      normalizeLoreCapsule(item, entriesBySlug.get(item.slug) ?? null),
     );
 
     const collectionBySlug = new Map(
-      delivery.collections.map((collection) => [collection.slug, collection] as const)
+      delivery.collections.map((collection) => [collection.slug, collection] as const),
     );
 
     const sections = Object.fromEntries(
       Object.entries(loadingData.singletonSections).map(([slug, section]) => [
         slug,
         normalizeSection(slug, section),
-      ])
-    ) as YoolaArchiveData['sections'];
+      ]),
+    ) as YoolaArchiveData["sections"];
 
     sections.gallery ??= createFallbackSection(
-      'gallery',
-      '[ Archive ]',
-      collectionBySlug.get('artworks')?.description ?? null
+      "gallery",
+      "[ Archive ]",
+      collectionBySlug.get("artworks")?.description ?? null,
     );
     sections.writing ??= createFallbackSection(
-      'writing',
-      '[ Lore ]',
-      collectionBySlug.get('lore-capsules')?.description ?? null
+      "writing",
+      "[ Lore ]",
+      collectionBySlug.get("lore-capsules")?.description ?? null,
     );
-    sections.about ??= createFallbackSection('about', 'Profile Dossier', null);
+    sections.about ??= createFallbackSection("about", "Profile Dossier", null);
 
     const profile = normalizeProfile(
       toProfileDataRecord(delivery.profileData),
-      sections.about.profileData
+      sections.about.profileData,
     );
 
     const resolvedNavigationItems = buildEpmNavigationItems(delivery.collections)
@@ -141,18 +140,15 @@ const getYoolaArchiveDataInternal = cache(async (): Promise<YoolaArchiveData> =>
       })
       .filter((item): item is YoolaNavigationItem => Boolean(item));
 
-    const homeNavigationLabel = toUpperLabel(
-      sections.home?.profileData.navLabel,
-      'INDEX'
-    );
+    const homeNavigationLabel = toUpperLabel(sections.home?.profileData.navLabel, "INDEX");
     const aboutNavigationLabel = toUpperLabel(
       sections.about.profileData.navLabel ?? sections.about.title,
-      'ABOUT'
+      "ABOUT",
     );
 
-    const seenPaths = new Set<string>(['/', '/about']);
+    const seenPaths = new Set<string>(["/", "/about"]);
     const navigationItems = [
-      { name: homeNavigationLabel, path: '/' },
+      { name: homeNavigationLabel, path: "/" },
       ...resolvedNavigationItems.filter((item) => {
         if (seenPaths.has(item.path)) {
           return false;
@@ -161,29 +157,25 @@ const getYoolaArchiveDataInternal = cache(async (): Promise<YoolaArchiveData> =>
         seenPaths.add(item.path);
         return true;
       }),
-      { name: aboutNavigationLabel, path: '/about' },
+      { name: aboutNavigationLabel, path: "/about" },
     ];
 
     return {
       archiveArtworks,
-      artworkCategories: loadingData.artworkCategories.map((category) =>
-        category.toUpperCase()
-      ),
+      artworkCategories: loadingData.artworkCategories.map((category) => category.toUpperCase()),
       featuredArtwork: loadingData.featuredArtwork
         ? normalizeArtwork(loadingData.featuredArtwork)
-        : archiveArtworks[0] ?? null,
+        : (archiveArtworks[0] ?? null),
       loreCapsules,
-      navigationItems:
-        navigationItems.length > 2 ? navigationItems : defaultNavigationItems,
+      navigationItems: navigationItems.length > 2 ? navigationItems : defaultNavigationItems,
       profile,
       sections,
     };
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Unknown EPM delivery failure';
+    const message = error instanceof Error ? error.message : "Unknown EPM delivery failure";
 
     throw new Error(
-      `[yoola] Failed to load EPM delivery from ${baseUrl} for workspace ${workspaceId}: ${message}`
+      `[yoola] Failed to load EPM delivery from ${baseUrl} for workspace ${workspaceId}: ${message}`,
     );
   }
 });
