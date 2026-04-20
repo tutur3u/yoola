@@ -24,14 +24,6 @@ const iconMap: Record<string, IconType> = {
   youtube: FaYoutube,
 };
 
-function asRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  return {};
-}
-
 function resolveArtwork(
   artworks: ArchiveArtwork[],
   profileData: Record<string, unknown>,
@@ -61,7 +53,7 @@ type AboutPageClientProps = {
 };
 
 export default function AboutPageClient({ artworks, profile, section }: AboutPageClientProps) {
-  const sectionProfileData = asRecord(section?.profileData);
+  const sectionProfileData = section?.profileData ?? {};
   const profileArtwork = resolveArtwork(artworks, sectionProfileData, "primaryArtworkSlug", 0);
   const sideArtwork = resolveArtwork(artworks, sectionProfileData, "secondaryArtworkSlug", 1);
   const profileMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;

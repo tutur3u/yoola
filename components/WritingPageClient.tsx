@@ -6,21 +6,17 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 
-function asRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  return {};
-}
-
 function getSectionPanels(section: YoolaPageSection | null) {
-  const profileData = asRecord(section?.profileData);
+  const profileData = section?.profileData ?? {};
   const panels = Array.isArray(profileData.panels) ? profileData.panels : [];
 
   return panels
-    .map((panel) => asRecord(panel))
+    .map((panel) => (panel && typeof panel === "object" && !Array.isArray(panel) ? panel : null))
     .map((panel) => {
+      if (!panel) {
+        return null;
+      }
+
       const title = typeof panel.title === "string" ? panel.title.trim() : null;
       const body = typeof panel.body === "string" ? panel.body.trim() : null;
       if (!title || !body) {

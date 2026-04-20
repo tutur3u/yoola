@@ -4,14 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-function asRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === "object" && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  return {};
-}
-
 function asString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
@@ -27,7 +19,7 @@ export default async function WritingCapsulePage(props: PageProps<"/writing/[slu
   const artwork = capsule.artworkId ? await getArtworkById(capsule.artworkId) : null;
   const { sections } = await getYoolaArchiveData();
   const writingSection = sections.writing ?? null;
-  const profileData = asRecord(capsule.profileData);
+  const profileData = capsule.profileData;
   const detailNoteMarkdown = asString(profileData.detailNoteMarkdown);
   const bodyMarkdown = capsule.bodyMarkdown?.trim() || capsule.excerptMarkdown;
 
