@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLightbox } from "@/components/LightboxContext";
 import type { ArchiveArtwork } from "@/lib/archive-data";
 
@@ -20,6 +20,7 @@ export default function GalleryLightbox({
   onSelect,
 }: GalleryLightboxProps) {
   const { open, close } = useLightbox();
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -82,8 +83,8 @@ export default function GalleryLightbox({
             className="relative flex h-full max-h-[92vh] w-full max-w-7xl flex-col overflow-hidden border border-white/15 bg-[#090909] shadow-[0_0_120px_rgba(176,38,255,0.25)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 p-4 md:p-6">
-              <div className="max-w-xl">
+            <div className="z-20 flex shrink-0 items-start justify-between gap-4 border-b border-white/10 bg-[#090909] p-4 md:p-6">
+              <div className="min-w-0 flex-1">
                 <p className="font-mono text-[11px] tracking-[0.35em] text-[#ff72c9] uppercase">
                   {activeArtwork.label} / {currentIndex + 1}
                   <span className="text-white/45"> / {artworks.length}</span>
@@ -91,21 +92,36 @@ export default function GalleryLightbox({
                 <h2 className="mt-2 font-display text-2xl font-black tracking-tight text-white uppercase md:text-4xl">
                   {activeArtwork.title}
                 </h2>
-                <p className="mt-2 max-w-lg font-mono text-xs leading-relaxed text-white/65 md:text-sm">
-                  {activeArtwork.note}
-                </p>
+                <div className="mt-2">
+                  <p
+                    className={`max-w-lg font-mono text-xs leading-relaxed text-white/65 md:text-sm ${
+                      descExpanded ? "" : "line-clamp-2"
+                    }`}
+                  >
+                    {activeArtwork.note}
+                  </p>
+                  {activeArtwork.note && activeArtwork.note.length > 100 && (
+                    <button
+                      type="button"
+                      onClick={() => setDescExpanded(!descExpanded)}
+                      className="mt-1 font-mono text-[10px] tracking-[0.2em] text-[#ff72c9] uppercase hover:underline"
+                    >
+                      {descExpanded ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={onClose}
-                className="border border-white/20 bg-black/65 px-4 py-2 font-mono text-xs tracking-[0.3em] text-white uppercase transition-colors hover:border-[#b026ff] hover:text-[#ff72c9]"
+                className="shrink-0 border border-white/20 bg-black/65 px-4 py-2 font-mono text-xs tracking-[0.3em] text-white uppercase transition-colors hover:border-[#b026ff] hover:text-[#ff72c9]"
               >
                 Close
               </button>
             </div>
 
-            <div className="relative flex min-h-0 flex-1 items-center justify-center px-3 pt-24 pb-4 md:px-6 md:pt-28 md:pb-6">
+            <div className="relative flex min-h-0 flex-1 items-center justify-center px-3 py-4 md:px-6 md:py-6">
               <div className="spotlight-violet pointer-events-none absolute inset-0 opacity-75" />
               <button
                 type="button"
@@ -115,7 +131,7 @@ export default function GalleryLightbox({
               >
                 Prev
               </button>
-              <div className="relative h-full w-full">
+              <div className="relative h-full w-full overflow-hidden">
                 {activeArtwork.src ? (
                   <Image
                     src={activeArtwork.src}
