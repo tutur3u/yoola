@@ -105,7 +105,7 @@ export type YoolaExternalProjectSectionLoadingItem = {
 };
 
 export type YoolaExternalProjectLoadingData = {
-  adapter: 'yoola';
+  adapter: "yoola";
   featuredArtwork: YoolaExternalProjectArtworkLoadingItem | null;
   artworks: YoolaExternalProjectArtworkLoadingItem[];
   artworkCategories: string[];
@@ -137,7 +137,7 @@ type TuturuuuClientInstance = {
   externalProjects: {
     getDelivery: (
       workspaceId: string,
-      options?: { preview?: boolean }
+      options?: { preview?: boolean },
     ) => Promise<ExternalProjectDeliveryPayload>;
   };
 };
@@ -150,7 +150,7 @@ let sdkRuntimePromise: Promise<TuturuuuModule> | null = null;
 
 async function loadSdkRuntime() {
   if (!sdkRuntimePromise) {
-    const packageName = 'tuturuuu';
+    const packageName = "tuturuuu";
     sdkRuntimePromise = import(packageName) as Promise<TuturuuuModule>;
   }
 
@@ -163,18 +163,14 @@ export async function createTuturuuuClient(config?: TuturuuuClientConfig) {
 }
 
 export function getEpmCollectionNavigationConfig(
-  config: unknown
+  config: unknown,
 ): EpmCollectionNavigationConfig | null {
-  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
     return null;
   }
 
   const navigation = (config as Record<string, unknown>).navigation;
-  if (
-    !navigation ||
-    typeof navigation !== 'object' ||
-    Array.isArray(navigation)
-  ) {
+  if (!navigation || typeof navigation !== "object" || Array.isArray(navigation)) {
     return null;
   }
 
@@ -182,15 +178,13 @@ export function getEpmCollectionNavigationConfig(
 }
 
 export function getEpmCollectionNavigationTitle(
-  collection: Pick<ExternalProjectCollection, 'config' | 'title'>
+  collection: Pick<ExternalProjectCollection, "config" | "title">,
 ) {
   const navigation = getEpmCollectionNavigationConfig(collection.config);
   return navigation?.title?.trim() ? navigation.title.trim() : collection.title;
 }
 
-export function buildEpmNavigationItems(
-  collections: ExternalProjectCollection[]
-) {
+export function buildEpmNavigationItems(collections: ExternalProjectCollection[]) {
   return collections
     .map((collection) => {
       const navigation = getEpmCollectionNavigationConfig(collection.config);
@@ -208,18 +202,14 @@ export function buildEpmNavigationItems(
 }
 
 function isYoolaLoadingData(
-  loadingData: ExternalProjectDeliveryPayload['loadingData']
+  loadingData: ExternalProjectDeliveryPayload["loadingData"],
 ): loadingData is YoolaExternalProjectLoadingData {
-  return (
-    !!loadingData &&
-    loadingData.adapter === 'yoola' &&
-    'singletonSections' in loadingData
-  );
+  return !!loadingData && loadingData.adapter === "yoola" && "singletonSections" in loadingData;
 }
 
 export function getYoolaSingletonSection(
-  loadingData: ExternalProjectDeliveryPayload['loadingData'],
-  slug: string
+  loadingData: ExternalProjectDeliveryPayload["loadingData"],
+  slug: string,
 ) {
   if (!isYoolaLoadingData(loadingData)) {
     return null;
@@ -229,7 +219,7 @@ export function getYoolaSingletonSection(
 }
 
 export function getYoolaSectionMarkdown(
-  section: YoolaExternalProjectSectionLoadingItem | null | undefined
+  section: YoolaExternalProjectSectionLoadingItem | null | undefined,
 ) {
   if (!section) {
     return null;

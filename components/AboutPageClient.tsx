@@ -1,23 +1,17 @@
-'use client';
+"use client";
 
-import MarkdownContent from '@/components/MarkdownContent';
+import MarkdownContent from "@/components/MarkdownContent";
 import type {
   ArchiveArtwork,
   YoolaPageSection,
   YoolaProfile,
   YoolaSocialLink,
-} from '@/lib/archive-data';
-import { motion } from 'motion/react';
-import Image from 'next/image';
-import type { IconType } from 'react-icons';
-import {
-  FaGithub,
-  FaInstagram,
-  FaLink,
-  FaXTwitter,
-  FaYoutube,
-} from 'react-icons/fa6';
-import { HiOutlineMail } from 'react-icons/hi';
+} from "@/lib/archive-data";
+import { motion } from "motion/react";
+import Image from "next/image";
+import type { IconType } from "react-icons";
+import { FaGithub, FaInstagram, FaLink, FaXTwitter, FaYoutube } from "react-icons/fa6";
+import { HiOutlineMail } from "react-icons/hi";
 
 const iconMap: Record<string, IconType> = {
   email: HiOutlineMail,
@@ -30,22 +24,14 @@ const iconMap: Record<string, IconType> = {
   youtube: FaYoutube,
 };
 
-function asRecord(value: unknown): Record<string, unknown> {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  return {};
-}
-
 function resolveArtwork(
   artworks: ArchiveArtwork[],
   profileData: Record<string, unknown>,
-  key: 'primaryArtworkSlug' | 'secondaryArtworkSlug',
-  fallbackIndex: number
+  key: "primaryArtworkSlug" | "secondaryArtworkSlug",
+  fallbackIndex: number,
 ) {
   const configuredSlug = profileData[key];
-  if (typeof configuredSlug === 'string') {
+  if (typeof configuredSlug === "string") {
     const matchedArtwork = artworks.find((artwork) => artwork.slug === configuredSlug);
     if (matchedArtwork) {
       return matchedArtwork;
@@ -66,14 +52,10 @@ type AboutPageClientProps = {
   section: YoolaPageSection | null;
 };
 
-export default function AboutPageClient({
-  artworks,
-  profile,
-  section,
-}: AboutPageClientProps) {
-  const sectionProfileData = asRecord(section?.profileData);
-  const profileArtwork = resolveArtwork(artworks, sectionProfileData, 'primaryArtworkSlug', 0);
-  const sideArtwork = resolveArtwork(artworks, sectionProfileData, 'secondaryArtworkSlug', 1);
+export default function AboutPageClient({ artworks, profile, section }: AboutPageClientProps) {
+  const sectionProfileData = section?.profileData ?? {};
+  const profileArtwork = resolveArtwork(artworks, sectionProfileData, "primaryArtworkSlug", 0);
+  const sideArtwork = resolveArtwork(artworks, sectionProfileData, "secondaryArtworkSlug", 1);
   const profileMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
 
   return (
@@ -126,7 +108,7 @@ export default function AboutPageClient({
 
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#b026ff]">
-                  {section?.subtitle ?? section?.title ?? 'Profile dossier'}
+                  {section?.subtitle ?? section?.title ?? "Profile dossier"}
                 </p>
                 <h1 className="mt-3 font-display text-5xl font-black tracking-tighter uppercase">
                   {profile.name}
@@ -240,8 +222,7 @@ export default function AboutPageClient({
                   </h2>
                   <div className="grid gap-4 font-mono text-sm">
                     {profile.stats.map((stat, index) => {
-                      const numericValue =
-                        typeof stat.value === 'number' ? stat.value : null;
+                      const numericValue = typeof stat.value === "number" ? stat.value : null;
                       const percentage =
                         numericValue !== null && stat.max && stat.max > 0
                           ? Math.min(100, (numericValue / stat.max) * 100)
@@ -264,8 +245,8 @@ export default function AboutPageClient({
                             <span className="tracking-tighter">
                               {percentage !== null ? (
                                 <>
-                                  {'█'.repeat(blocks)}
-                                  <span className="text-white/20">{'█'.repeat(emptyBlocks)}</span>
+                                  {"█".repeat(blocks)}
+                                  <span className="text-white/20">{"█".repeat(emptyBlocks)}</span>
                                 </>
                               ) : (
                                 <span className="text-white/35">DATA</span>

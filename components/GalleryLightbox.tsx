@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { AnimatePresence, motion } from 'motion/react';
-import { useEffect } from 'react';
-import type { ArchiveArtwork } from '@/lib/archive-data';
+import Image from "next/image";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { useLightbox } from "@/components/LightboxContext";
+import type { ArchiveArtwork } from "@/lib/archive-data";
 
 type GalleryLightboxProps = {
   artworks: ArchiveArtwork[];
@@ -18,37 +19,42 @@ export default function GalleryLightbox({
   onClose,
   onSelect,
 }: GalleryLightboxProps) {
+  const { open, close } = useLightbox();
+  const [descExpanded, setDescExpanded] = useState(false);
+
   useEffect(() => {
     if (activeIndex === null) {
+      close();
       return;
     }
 
+    open();
     const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
         return;
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === "ArrowRight") {
         onSelect((activeIndex + 1) % artworks.length);
         return;
       }
 
-      if (event.key === 'ArrowLeft') {
+      if (event.key === "ArrowLeft") {
         onSelect((activeIndex - 1 + artworks.length) % artworks.length);
       }
     };
 
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener("keydown", onKeyDown);
 
     return () => {
       document.body.style.overflow = originalOverflow;
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener("keydown", onKeyDown);
     };
-  }, [activeIndex, artworks.length, onClose, onSelect]);
+  }, [activeIndex, artworks.length, onClose, onSelect, open, close]);
 
   const activeArtwork = activeIndex === null ? null : artworks[activeIndex];
   const currentIndex = activeIndex ?? 0;
@@ -60,7 +66,7 @@ export default function GalleryLightbox({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl md:p-8"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl md:p-8"
           role="dialog"
           aria-modal="true"
           aria-label={`Fullscreen artwork viewer for ${activeArtwork.title}`}
@@ -73,12 +79,12 @@ export default function GalleryLightbox({
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
             className="relative flex h-full max-h-[92vh] w-full max-w-7xl flex-col overflow-hidden border border-white/15 bg-[#090909] shadow-[0_0_120px_rgba(176,38,255,0.25)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 p-4 md:p-6">
-              <div className="max-w-xl">
+            <div className="z-20 flex shrink-0 items-start justify-between gap-4 border-b border-white/10 bg-[#090909] p-4 md:p-6">
+              <div className="min-w-0 flex-1">
                 <p className="font-mono text-[11px] tracking-[0.35em] text-[#ff72c9] uppercase">
                   {activeArtwork.label} / {currentIndex + 1}
                   <span className="text-white/45"> / {artworks.length}</span>
@@ -86,21 +92,36 @@ export default function GalleryLightbox({
                 <h2 className="mt-2 font-display text-2xl font-black tracking-tight text-white uppercase md:text-4xl">
                   {activeArtwork.title}
                 </h2>
-                <p className="mt-2 max-w-lg font-mono text-xs leading-relaxed text-white/65 md:text-sm">
-                  {activeArtwork.note}
-                </p>
+                <div className="mt-2">
+                  <p
+                    className={`max-w-lg font-mono text-xs leading-relaxed text-white/65 md:text-sm ${
+                      descExpanded ? "" : "line-clamp-2"
+                    }`}
+                  >
+                    {activeArtwork.note}
+                  </p>
+                  {activeArtwork.note && activeArtwork.note.length > 100 && (
+                    <button
+                      type="button"
+                      onClick={() => setDescExpanded(!descExpanded)}
+                      className="mt-1 font-mono text-[10px] tracking-[0.2em] text-[#ff72c9] uppercase hover:underline"
+                    >
+                      {descExpanded ? "Show less" : "Read more"}
+                    </button>
+                  )}
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={onClose}
-                className="border border-white/20 bg-black/65 px-4 py-2 font-mono text-xs tracking-[0.3em] text-white uppercase transition-colors hover:border-[#b026ff] hover:text-[#ff72c9]"
+                className="shrink-0 border border-white/20 bg-black/65 px-4 py-2 font-mono text-xs tracking-[0.3em] text-white uppercase transition-colors hover:border-[#b026ff] hover:text-[#ff72c9]"
               >
                 Close
               </button>
             </div>
 
-            <div className="relative flex min-h-0 flex-1 items-center justify-center px-3 pt-24 pb-4 md:px-6 md:pt-28 md:pb-6">
+            <div className="relative flex min-h-0 flex-1 items-center justify-center px-3 py-4 md:px-6 md:py-6">
               <div className="spotlight-violet pointer-events-none absolute inset-0 opacity-75" />
               <button
                 type="button"
@@ -110,7 +131,7 @@ export default function GalleryLightbox({
               >
                 Prev
               </button>
-              <div className="relative h-full w-full">
+              <div className="relative h-full w-full overflow-hidden">
                 {activeArtwork.src ? (
                   <Image
                     src={activeArtwork.src}
@@ -145,8 +166,8 @@ export default function GalleryLightbox({
                     onClick={() => onSelect(index)}
                     className={`group relative h-20 w-16 shrink-0 overflow-hidden border md:h-24 md:w-20 ${
                       index === currentIndex
-                        ? 'border-[#ff72c9] shadow-[0_0_24px_rgba(255,114,201,0.45)]'
-                        : 'border-white/10 hover:border-white/35'
+                        ? "border-[#ff72c9] shadow-[0_0_24px_rgba(255,114,201,0.45)]"
+                        : "border-white/10 hover:border-white/35"
                     }`}
                     aria-label={`View ${artwork.title}`}
                   >

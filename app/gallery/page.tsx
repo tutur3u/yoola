@@ -1,9 +1,8 @@
-import GalleryPageClient from '@/components/GalleryPageClient';
-import { getYoolaArchiveData } from '@/lib/archive-data';
+import GalleryPageClient from "@/components/GalleryPageClient";
+import { getYoolaArchiveData } from "@/lib/archive-data";
 
 export default async function GalleryPage() {
-  const { archiveArtworks, artworkCategories, sections } =
-    await getYoolaArchiveData();
+  const { archiveArtworks, artworkCategories, sections } = await getYoolaArchiveData();
 
   return (
     <GalleryPageClient

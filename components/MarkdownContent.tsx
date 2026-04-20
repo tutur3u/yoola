@@ -1,7 +1,7 @@
-import clsx from 'clsx';
-import type { ComponentPropsWithoutRef } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import clsx from "clsx";
+import type { ComponentPropsWithoutRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type MarkdownContentProps = {
   markdown: string;
@@ -17,9 +17,9 @@ export default function MarkdownContent({
   return (
     <div
       className={clsx(
-        'space-y-5 font-mono leading-7 text-white/78',
-        compact ? 'text-sm' : 'text-sm',
-        className
+        "space-y-5 font-mono leading-7 text-white/78",
+        compact ? "text-sm" : "text-sm",
+        className,
       )}
     >
       <ReactMarkdown
@@ -28,8 +28,8 @@ export default function MarkdownContent({
           h1: ({ children }) => (
             <h1
               className={clsx(
-                'font-display font-black tracking-tight text-white uppercase',
-                compact ? 'text-2xl' : 'text-4xl'
+                "font-display font-black tracking-tight text-white uppercase",
+                compact ? "text-2xl" : "text-4xl",
               )}
             >
               {children}
@@ -38,8 +38,8 @@ export default function MarkdownContent({
           h2: ({ children }) => (
             <h2
               className={clsx(
-                'font-display font-black tracking-tight text-white uppercase',
-                compact ? 'mt-6 text-xl' : 'mt-10 text-3xl'
+                "font-display font-black tracking-tight text-white uppercase",
+                compact ? "mt-6 text-xl" : "mt-10 text-3xl",
               )}
             >
               {children}
@@ -48,8 +48,8 @@ export default function MarkdownContent({
           h3: ({ children }) => (
             <h3
               className={clsx(
-                'font-display font-black tracking-tight text-white uppercase',
-                compact ? 'mt-5 text-lg' : 'mt-8 text-2xl'
+                "font-display font-black tracking-tight text-white uppercase",
+                compact ? "mt-5 text-lg" : "mt-8 text-2xl",
               )}
             >
               {children}
@@ -74,7 +74,7 @@ export default function MarkdownContent({
               {children}
             </a>
           ),
-          code: ({ inline, children }: ComponentPropsWithoutRef<'code'> & { inline?: boolean }) =>
+          code: ({ inline, children }: ComponentPropsWithoutRef<"code"> & { inline?: boolean }) =>
             inline ? (
               <code className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-xs text-[#ffd5f2]">
                 {children}

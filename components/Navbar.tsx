@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { motion } from 'motion/react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import type { YoolaNavigationItem } from '@/lib/archive-data';
+import { motion } from "motion/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useLightbox } from "@/components/LightboxContext";
+import type { YoolaNavigationItem } from "@/lib/archive-data";
 
 type NavbarProps = {
   brand: string;
@@ -12,6 +13,11 @@ type NavbarProps = {
 
 export default function Navbar({ brand, items }: NavbarProps) {
   const pathname = usePathname();
+  const { isOpen } = useLightbox();
+
+  if (isOpen) {
+    return null;
+  }
 
   return (
     <motion.nav
@@ -29,8 +35,8 @@ export default function Navbar({ brand, items }: NavbarProps) {
       <div className="pointer-events-auto flex gap-4 border-2 border-white/20 bg-black/50 px-6 py-3 backdrop-blur-md md:gap-8">
         {items.map((item) => {
           const isActive =
-            item.path === '/'
-              ? pathname === '/'
+            item.path === "/"
+              ? pathname === "/"
               : pathname === item.path || pathname.startsWith(`${item.path}/`);
 
           return (
@@ -39,8 +45,8 @@ export default function Navbar({ brand, items }: NavbarProps) {
               href={item.path}
               className={`font-display text-lg font-black uppercase transition-all hover:animate-glitch md:text-xl ${
                 isActive
-                  ? 'text-[#b026ff] underline decoration-4 underline-offset-4'
-                  : 'text-white hover:text-[#b026ff]'
+                  ? "text-[#b026ff] underline decoration-4 underline-offset-4"
+                  : "text-white hover:text-[#b026ff]"
               }`}
             >
               {item.name}

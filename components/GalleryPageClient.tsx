@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import MarkdownContent from '@/components/MarkdownContent';
-import GalleryLightbox from '@/components/GalleryLightbox';
-import type { ArchiveArtwork, YoolaPageSection } from '@/lib/archive-data';
-import { motion } from 'motion/react';
-import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import MarkdownContent from "@/components/MarkdownContent";
+import GalleryLightbox from "@/components/GalleryLightbox";
+import type { ArchiveArtwork, YoolaPageSection } from "@/lib/archive-data";
+import { motion } from "motion/react";
+import Image from "next/image";
+import { useMemo, useState } from "react";
 
 type GalleryPageClientProps = {
   artworks: ArchiveArtwork[];
@@ -18,11 +18,11 @@ function ArtworkCardImage({ artwork }: { artwork: ArchiveArtwork }) {
     return (
       <div
         className={`relative mb-4 overflow-hidden border border-white/10 ${
-          artwork.orientation === 'landscape'
-            ? 'aspect-[16/10]'
-            : artwork.orientation === 'square'
-              ? 'aspect-square'
-              : 'aspect-[4/5]'
+          artwork.orientation === "landscape"
+            ? "aspect-[16/10]"
+            : artwork.orientation === "square"
+              ? "aspect-square"
+              : "aspect-[4/5]"
         }`}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(176,38,255,0.18),_transparent_45%),linear-gradient(180deg,_rgba(255,255,255,0.05),_rgba(0,0,0,0.75))]" />
@@ -36,11 +36,11 @@ function ArtworkCardImage({ artwork }: { artwork: ArchiveArtwork }) {
   return (
     <div
       className={`relative mb-4 overflow-hidden border border-white/10 ${
-        artwork.orientation === 'landscape'
-          ? 'aspect-[16/10]'
-          : artwork.orientation === 'square'
-            ? 'aspect-square'
-            : 'aspect-[4/5]'
+        artwork.orientation === "landscape"
+          ? "aspect-[16/10]"
+          : artwork.orientation === "square"
+            ? "aspect-square"
+            : "aspect-[4/5]"
       }`}
     >
       <Image
@@ -61,16 +61,14 @@ export default function GalleryPageClient({
   section,
 }: GalleryPageClientProps) {
   const filters = useMemo(
-    () => ['ALL', ...categories.filter((category) => category !== 'ALL')],
-    [categories]
+    () => ["ALL", ...categories.filter((category) => category !== "ALL")],
+    [categories],
   );
-  const [activeFilter, setActiveFilter] = useState(filters[0] ?? 'ALL');
+  const [activeFilter, setActiveFilter] = useState(filters[0] ?? "ALL");
   const [activeArtworkId, setActiveArtworkId] = useState<string | null>(null);
 
   const visibleArtworks =
-    activeFilter === 'ALL'
-      ? artworks
-      : artworks.filter((art) => art.category === activeFilter);
+    activeFilter === "ALL" ? artworks : artworks.filter((art) => art.category === activeFilter);
 
   const activeLightboxIndex =
     activeArtworkId === null
@@ -79,6 +77,8 @@ export default function GalleryPageClient({
 
   const featuredArtwork = artworks[0] ?? null;
   const heroMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
+
+  console.log("GalleryPageClient render", { artworks, categories, section });
 
   return (
     <div className="bg-gallery-vault relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
@@ -92,16 +92,16 @@ export default function GalleryPageClient({
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="relative mb-16"
         >
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
-                {section?.subtitle ?? 'Visual archive'}
+                {section?.subtitle ?? "Visual archive"}
               </p>
               <h1 className="mt-4 font-display text-6xl font-black tracking-[-0.06em] text-white uppercase md:text-8xl">
-                {section?.title ?? '[ Archive ]'}
+                {section?.title ?? "[ Archive ]"}
               </h1>
               {heroMarkdown ? (
                 <div className="mt-5 max-w-2xl">
@@ -161,8 +161,8 @@ export default function GalleryPageClient({
               onClick={() => setActiveFilter(filter)}
               className={`border-2 px-6 py-2 font-mono text-sm font-bold uppercase tracking-widest transition-all ${
                 activeFilter === filter
-                  ? 'border-[#b026ff] bg-[#b026ff] text-white'
-                  : 'border-white/20 bg-black/45 text-white hover:border-[#b026ff] hover:text-[#b026ff]'
+                  ? "border-[#b026ff] bg-[#b026ff] text-white"
+                  : "border-white/20 bg-black/45 text-white hover:border-[#b026ff] hover:text-[#b026ff]"
               }`}
             >
               {filter}
@@ -177,14 +177,14 @@ export default function GalleryPageClient({
                 key={art.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
+                viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 className={`group ${
-                  art.orientation === 'landscape'
-                    ? 'md:col-span-7'
-                    : art.orientation === 'square'
-                      ? 'md:col-span-5'
-                      : 'md:col-span-4'
+                  art.orientation === "landscape"
+                    ? "md:col-span-7"
+                    : art.orientation === "square"
+                      ? "md:col-span-5"
+                      : "md:col-span-4"
                 }`}
               >
                 <button
@@ -241,9 +241,7 @@ export default function GalleryPageClient({
       <GalleryLightbox
         artworks={visibleArtworks}
         activeIndex={
-          activeLightboxIndex !== null && activeLightboxIndex >= 0
-            ? activeLightboxIndex
-            : null
+          activeLightboxIndex !== null && activeLightboxIndex >= 0 ? activeLightboxIndex : null
         }
         onClose={() => setActiveArtworkId(null)}
         onSelect={(index) => setActiveArtworkId(visibleArtworks[index]?.id ?? null)}
