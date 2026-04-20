@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format-and-lint": "bun run fmt && bun run lint",
+    "format-and-lint:fix": "bun run fmt:fix && bun run lint:fix"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
@@ -29,6 +34,9 @@
     "@types/react-dom": "^19.2.3",
     "eslint": "^10.2.1",
     "eslint-config-next": "16.2.4",
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
+    "oxlint-tsgolint": "^0.21.1",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.3"
   }
