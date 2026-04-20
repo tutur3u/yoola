@@ -16,8 +16,15 @@ const nextConfig: NextConfig = {
       {
         protocol: parsedAssetBaseUrl.protocol.replace(':', '') as 'http' | 'https',
         hostname: parsedAssetBaseUrl.hostname,
-        port: parsedAssetBaseUrl.port || '',
+        port: parsedAssetBaseUrl.port || undefined,
         pathname: `${assetPathPrefix}/workspaces/**/external-projects/assets/**`,
+      },
+      // Fallback for localhost development
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '7803',
+        pathname: '/api/v1/workspaces/**/external-projects/assets/**',
       },
     ],
   },
