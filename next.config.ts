@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   transpilePackages: ['motion'],
   images: {
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",
     remotePatterns: [
       {
         protocol: parsedAssetBaseUrl.protocol.replace(':', '') as 'http' | 'https',
@@ -19,13 +20,16 @@ const nextConfig: NextConfig = {
         port: parsedAssetBaseUrl.port || undefined,
         pathname: `${assetPathPrefix}/workspaces/**/external-projects/assets/**`,
       },
-      // Fallback for localhost development
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '7803',
-        pathname: '/api/v1/workspaces/**/external-projects/assets/**',
-      },
+      ...(process.env.NODE_ENV === 'development'
+        ? [
+            {
+              protocol: 'http' as const,
+              hostname: 'localhost',
+              port: '7803',
+              pathname: '/api/v1/workspaces/**/external-projects/assets/**',
+            },
+          ]
+        : []),
     ],
   },
 };
