@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import { LightboxProvider } from "@/components/LightboxContext";
 import { defaultNavigationItems, getYoolaArchiveData } from "@/lib/archive-data";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
@@ -38,17 +39,19 @@ export default async function RootLayout({
         className="min-h-screen overflow-x-hidden bg-uma-pattern font-sans text-slate-800 selection:bg-pink-500/30 selection:text-pink-900"
         suppressHydrationWarning
       >
-        <Analytics />
-        <div className="pointer-events-none fixed inset-0 z-[-1] overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] h-[50vw] w-[50vw] rounded-full bg-emerald-400/10 blur-[100px]" />
-          <div className="absolute right-[-10%] bottom-[-10%] h-[60vw] w-[60vw] rounded-full bg-pink-400/10 blur-[100px]" />
-          <div className="absolute top-[40%] right-[-20%] h-[40vw] w-[40vw] rounded-full bg-cyan-400/10 blur-[100px]" />
-        </div>
-        <Navbar
-          brand={archiveData?.profile.brand ?? "YOOLA"}
-          items={archiveData?.navigationItems ?? defaultNavigationItems}
-        />
-        <main className="w-full">{children}</main>
+        <LightboxProvider>
+          <Analytics />
+          <div className="pointer-events-none fixed inset-0 z-[-1] overflow-hidden">
+            <div className="absolute top-[-10%] left-[-10%] h-[50vw] w-[50vw] rounded-full bg-emerald-400/10 blur-[100px]" />
+            <div className="absolute right-[-10%] bottom-[-10%] h-[60vw] w-[60vw] rounded-full bg-pink-400/10 blur-[100px]" />
+            <div className="absolute top-[40%] right-[-20%] h-[40vw] w-[40vw] rounded-full bg-cyan-400/10 blur-[100px]" />
+          </div>
+          <Navbar
+            brand={archiveData?.profile.brand ?? "YOOLA"}
+            items={archiveData?.navigationItems ?? defaultNavigationItems}
+          />
+          <main className="w-full">{children}</main>
+        </LightboxProvider>
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect } from "react";
+import { useLightbox } from "@/components/LightboxContext";
 import type { ArchiveArtwork } from "@/lib/archive-data";
 
 type GalleryLightboxProps = {
@@ -18,11 +19,15 @@ export default function GalleryLightbox({
   onClose,
   onSelect,
 }: GalleryLightboxProps) {
+  const { open, close } = useLightbox();
+
   useEffect(() => {
     if (activeIndex === null) {
+      close();
       return;
     }
 
+    open();
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -48,7 +53,7 @@ export default function GalleryLightbox({
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [activeIndex, artworks.length, onClose, onSelect]);
+  }, [activeIndex, artworks.length, onClose, onSelect, open, close]);
 
   const activeArtwork = activeIndex === null ? null : artworks[activeIndex];
   const currentIndex = activeIndex ?? 0;
@@ -60,7 +65,7 @@ export default function GalleryLightbox({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl md:p-8"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl md:p-8"
           role="dialog"
           aria-modal="true"
           aria-label={`Fullscreen artwork viewer for ${activeArtwork.title}`}

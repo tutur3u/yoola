@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLightbox } from "@/components/LightboxContext";
 import type { YoolaNavigationItem } from "@/lib/archive-data";
 
 type NavbarProps = {
@@ -12,6 +13,11 @@ type NavbarProps = {
 
 export default function Navbar({ brand, items }: NavbarProps) {
   const pathname = usePathname();
+  const { isOpen } = useLightbox();
+
+  if (isOpen) {
+    return null;
+  }
 
   return (
     <motion.nav

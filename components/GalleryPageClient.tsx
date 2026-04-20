@@ -78,6 +78,8 @@ export default function GalleryPageClient({
   const featuredArtwork = artworks[0] ?? null;
   const heroMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
 
+  console.log("GalleryPageClient render", { artworks, categories, section });
+
   return (
     <div className="bg-gallery-vault relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
       <div className="pointer-events-none gallery-spectrum-overlay absolute inset-0 opacity-90" />
