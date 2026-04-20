@@ -111,14 +111,20 @@ export default function GalleryLightbox({
                 Prev
               </button>
               <div className="relative h-full w-full">
-                <Image
-                  src={activeArtwork.src}
-                  alt={activeArtwork.title}
-                  fill
-                  sizes="100vw"
-                  priority
-                  className="object-contain"
-                />
+                {activeArtwork.src ? (
+                  <Image
+                    src={activeArtwork.src}
+                    alt={activeArtwork.alt || activeArtwork.title}
+                    fill
+                    sizes="100vw"
+                    priority
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(176,38,255,0.18),_transparent_45%),linear-gradient(180deg,_rgba(255,255,255,0.05),_rgba(0,0,0,0.75))] font-mono text-[11px] tracking-[0.35em] text-white/40 uppercase">
+                    No Visual Yet
+                  </div>
+                )}
               </div>
               <button
                 type="button"
@@ -144,15 +150,19 @@ export default function GalleryLightbox({
                     }`}
                     aria-label={`View ${artwork.title}`}
                   >
-                    <Image
-                      src={artwork.src}
-                      alt=""
-                      fill
-                      sizes="120px"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <span className="absolute inset-x-0 bottom-0 bg-black/70 px-1 py-1 font-mono text-[10px] tracking-[0.25em] text-white uppercase">
-                      {artwork.id}
+                    {artwork.src ? (
+                      <Image
+                        src={artwork.src}
+                        alt=""
+                        fill
+                        sizes="120px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-white/5" />
+                    )}
+                    <span className="absolute inset-x-0 bottom-0 bg-black/70 px-1 py-1 font-mono text-[10px] tracking-[0.2em] text-white uppercase">
+                      {artwork.label}
                     </span>
                   </button>
                 ))}

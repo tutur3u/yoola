@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Yoola
 
-## Getting Started
+Yoola is a Next.js front-end that consumes Tuturuuu EPM delivery.
 
-First, run the development server:
+## Configuration
+
+Create `.env.local` from `.env.example` and set:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+cp .env.example .env.local
+```
+
+Required environment variables:
+
+```env
+TUTURUUU_API_BASE_URL=https://tuturuuu.com/api/v1
+TUTURUUU_YOOLA_WORKSPACE_ID=your-workspace-id
+```
+
+What they do:
+
+- `TUTURUUU_API_BASE_URL`: Tuturuuu API base URL Yoola should call for EPM delivery.
+- `TUTURUUU_YOOLA_WORKSPACE_ID`: the workspace bound in Tuturuuu EPM to the canonical external project that uses the `yoola` adapter.
+
+Yoola now fails at startup when:
+
+- `TUTURUUU_YOOLA_WORKSPACE_ID` is missing
+- the configured workspace is not bound to an external project using the `yoola` adapter
+- the EPM delivery request fails
+
+## Development
+
+```bash
+bun install
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Integration Notes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Gallery content is sourced from EPM `loadingData.artworks`.
+- Writing index content is sourced from EPM `loadingData.loreCapsules`.
+- Writing detail pages render markdown blocks from the entry body in the delivery payload.
+- Navigation labels can be managed from EPM with `collection.config.navigation.title`.

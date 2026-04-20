@@ -1,17 +1,16 @@
 'use client';
 
+import { motion } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'motion/react';
+import type { YoolaNavigationItem } from '@/lib/archive-data';
 
-const navItems = [
-  { name: 'INDEX', path: '/' },
-  { name: 'ARCHIVE', path: '/gallery' },
-  { name: 'LORE', path: '/writing' },
-  { name: 'TRAINER', path: '/about' },
-];
+type NavbarProps = {
+  brand: string;
+  items: YoolaNavigationItem[];
+};
 
-export default function Navbar() {
+export default function Navbar({ brand, items }: NavbarProps) {
   const pathname = usePathname();
 
   return (
@@ -24,11 +23,15 @@ export default function Navbar() {
         href="/"
         className="font-display pointer-events-auto text-4xl font-black tracking-tighter text-white transition-transform hover:scale-105"
       >
-        YOOLA<span className="text-[#b026ff]">.</span>
+        {brand}
+        <span className="text-[#b026ff]">.</span>
       </Link>
       <div className="pointer-events-auto flex gap-4 border-2 border-white/20 bg-black/50 px-6 py-3 backdrop-blur-md md:gap-8">
-        {navItems.map((item) => {
-          const isActive = pathname === item.path;
+        {items.map((item) => {
+          const isActive =
+            item.path === '/'
+              ? pathname === '/'
+              : pathname === item.path || pathname.startsWith(`${item.path}/`);
 
           return (
             <Link

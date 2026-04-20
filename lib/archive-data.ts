@@ -1,211 +1,575 @@
-export type ArtworkCategory = 'SPEED' | 'STAMINA' | 'POWER' | 'GUTS' | 'WISDOM';
+import { cache } from 'react';
+import {
+  buildEpmNavigationItems,
+  createTuturuuuClient,
+  type ExternalProjectDeliveryEntry,
+  type YoolaExternalProjectArtworkLoadingItem,
+  type YoolaExternalProjectLoadingData,
+  type YoolaExternalProjectLoreCapsuleLoadingItem,
+  type YoolaExternalProjectSectionLoadingItem,
+} from '@/lib/tuturuuu-sdk';
+
 export type ArtworkOrientation = 'portrait' | 'landscape' | 'square';
 
 export type ArchiveArtwork = {
-  id: number;
-  src: string;
+  id: string;
+  src: string | null;
   title: string;
+  slug: string;
   label: string;
-  category: ArtworkCategory;
-  rarity: 'R' | 'SR' | 'SSR';
+  category: string;
+  rarity: string;
   width: number;
   height: number;
   orientation: ArtworkOrientation;
   year: string;
   note: string;
+  caption: string | null;
+  alt: string | null;
 };
 
 export type LoreCapsule = {
   slug: string;
   title: string;
+  subtitle: string | null;
   channel: string;
-  status: 'LOCKED' | 'IN TRANSIT' | 'STAGING';
+  status: string;
   date: string;
-  excerpt: string;
+  excerptMarkdown: string;
   teaser: string;
   tags: string[];
-  artworkId: number;
+  artworkId: string | null;
+  bodyMarkdown: string | null;
+  profileData: Record<string, unknown>;
+  metadata: Record<string, unknown>;
 };
 
-export const archiveArtworks: ArchiveArtwork[] = [
-  {
-    id: 1,
-    src: '/artworks/1.png',
-    title: 'STARTER SIGNAL',
-    label: 'ARC-01',
-    category: 'SPEED',
-    rarity: 'SSR',
-    width: 1440,
-    height: 2124,
-    orientation: 'portrait',
-    year: '2026',
-    note: 'Launch-frame portrait with podium lighting and high-contrast violet bleed.',
-  },
-  {
-    id: 2,
-    src: '/artworks/2.png',
-    title: 'PITLINE STATIC',
-    label: 'ARC-02',
-    category: 'GUTS',
-    rarity: 'SR',
-    width: 1024,
-    height: 680,
-    orientation: 'landscape',
-    year: '2025',
-    note: 'Low-angle scene study built around pressure, steel, and idle momentum.',
-  },
-  {
-    id: 3,
-    src: '/artworks/3.png',
-    title: 'HORIZON BREAK',
-    label: 'ARC-03',
-    category: 'POWER',
-    rarity: 'SSR',
-    width: 2400,
-    height: 1440,
-    orientation: 'landscape',
-    year: '2025',
-    note: 'Wide environmental composition with broadcast-scale framing.',
-  },
-  {
-    id: 4,
-    src: '/artworks/4.png',
-    title: 'TRACKSIDE IDOL',
-    label: 'ARC-04',
-    category: 'WISDOM',
-    rarity: 'R',
-    width: 624,
-    height: 578,
-    orientation: 'square',
-    year: '2024',
-    note: 'Compact square study centered on gesture, charm, and sticker-like attitude.',
-  },
-  {
-    id: 5,
-    src: '/artworks/5.png',
-    title: 'NEON SILENCE',
-    label: 'ARC-05',
-    category: 'STAMINA',
-    rarity: 'SR',
-    width: 1442,
-    height: 1440,
-    orientation: 'square',
-    year: '2026',
-    note: 'Symmetrical close-frame image with soft bloom and poster-grade contrast.',
-  },
-  {
-    id: 6,
-    src: '/artworks/6.png',
-    title: 'PULSE VECTOR',
-    label: 'ARC-06',
-    category: 'SPEED',
-    rarity: 'SSR',
-    width: 1440,
-    height: 1960,
-    orientation: 'portrait',
-    year: '2025',
-    note: 'Vertical acceleration piece with layered motion cues and hard edge lighting.',
-  },
-  {
-    id: 7,
-    src: '/artworks/7.png',
-    title: 'CROWD TRANSMISSION',
-    label: 'ARC-07',
-    category: 'POWER',
-    rarity: 'SR',
-    width: 866,
-    height: 618,
-    orientation: 'landscape',
-    year: '2024',
-    note: 'Broadcast-style moment capture with heavy implied noise and audience energy.',
-  },
-  {
-    id: 8,
-    src: '/artworks/8.png',
-    title: 'VIOLET DRAFT',
-    label: 'ARC-08',
-    category: 'WISDOM',
-    rarity: 'SSR',
-    width: 2360,
-    height: 1440,
-    orientation: 'landscape',
-    year: '2026',
-    note: 'Large-format spread with editorial negative space and directional flare.',
-  },
-  {
-    id: 9,
-    src: '/artworks/9.png',
-    title: 'TOKEN GLARE',
-    label: 'ARC-09',
-    category: 'GUTS',
-    rarity: 'R',
-    width: 672,
-    height: 600,
-    orientation: 'square',
-    year: '2023',
-    note: 'Punchy square cut built like a badge or stamped collectible.',
-  },
-  {
-    id: 10,
-    src: '/artworks/10.png',
-    title: 'FINAL OVERTAKE',
-    label: 'ARC-10',
-    category: 'STAMINA',
-    rarity: 'SSR',
-    width: 1440,
-    height: 2360,
-    orientation: 'portrait',
-    year: '2026',
-    note: 'Tall key visual with posterized silhouette work and ceremonial framing.',
-  },
+export type YoolaNavigationItem = {
+  name: string;
+  path: string;
+};
+
+export type YoolaSocialLink = {
+  href: string;
+  icon: string;
+  label: string;
+};
+
+export type YoolaProfileStat = {
+  label: string;
+  max: number | null;
+  value: number | string;
+};
+
+export type YoolaProfileMarker = {
+  label: string;
+  value: string;
+};
+
+export type YoolaPageSection = {
+  bodyMarkdown: string | null;
+  metadata: Record<string, unknown>;
+  profileData: Record<string, unknown>;
+  slug: string;
+  subtitle: string | null;
+  summary: string | null;
+  title: string;
+};
+
+export type YoolaProfile = {
+  brand: string;
+  entityId: string | null;
+  markers: YoolaProfileMarker[];
+  name: string;
+  rank: string | null;
+  role: string;
+  socialLinks: YoolaSocialLink[];
+  stats: YoolaProfileStat[];
+  statusLabel: string | null;
+};
+
+const DEFAULT_TUTURUUU_BASE_URL =
+  process.env.TUTURUUU_API_BASE_URL ??
+  process.env.NEXT_PUBLIC_TUTURUUU_API_BASE_URL ??
+  'https://tuturuuu.com/api/v1';
+
+const DELIVERY_REVALIDATE_SECONDS = 60;
+
+const defaultProfileStats: YoolaProfileStat[] = [
+  { label: 'SPEED', value: 1200, max: 1200 },
+  { label: 'STAMINA', value: 850, max: 1200 },
+  { label: 'POWER', value: 1050, max: 1200 },
+  { label: 'GUTS', value: 600, max: 1200 },
+  { label: 'WISDOM', value: 950, max: 1200 },
 ];
 
-export const loreCapsules: LoreCapsule[] = [
-  {
-    slug: 'violet-horizon',
-    title: 'The Violet Horizon',
-    channel: 'Main Transmission',
-    status: 'IN TRANSIT',
-    date: '2026.04.12',
-    excerpt:
-      'The stadium emptied in waves, but the violet glow on the far rail refused to die. She stayed to watch it anyway, like a final split time still waiting to be read.',
-    teaser:
-      'A post-race scene file about silence, pressure, and the strange calm that follows a win nobody understands.',
-    tags: ['MAIN_STORY', 'AFTERMATH', 'ANGST'],
-    artworkId: 10,
-  },
-  {
-    slug: 'midnight-strategy',
-    title: 'Midnight Strategy',
-    channel: 'Draft Capsule',
-    status: 'STAGING',
-    date: '2026.05.02',
-    excerpt:
-      'Sheets of telemetry crawled across the desk while the city outside dimmed to static. Winning stopped looking like instinct and started looking like architecture.',
-    teaser:
-      'A planner-room fragment built around tactics, fatigue, and the cost of optimizing everything.',
-    tags: ['TACTICS', 'CHARACTER', 'EXTRA'],
-    artworkId: 3,
-  },
-  {
-    slug: 'crowd-noise-protocol',
-    title: 'Crowd Noise Protocol',
-    channel: 'Event Archive',
-    status: 'LOCKED',
-    date: '2026.05.19',
-    excerpt:
-      'By the time the announcement hit, the cheering had already turned into weather. She smiled at nobody in particular and adjusted her gloves like the room had gone quiet.',
-    teaser:
-      'An event-night placeholder file focused on public image, performance, and the split between persona and self.',
-    tags: ['EVENT', 'PUBLIC_MASK', 'SLICE_OF_LIFE'],
-    artworkId: 7,
-  },
+const defaultProfileMarkers: YoolaProfileMarker[] = [
+  { label: 'Primary lane', value: 'Visual archive' },
+  { label: 'Current phase', value: 'World building' },
+  { label: 'Signal style', value: 'Brutalist neon' },
 ];
 
-export function getArtworkById(id: number) {
-  return archiveArtworks.find((artwork) => artwork.id === id);
+export const defaultNavigationItems: YoolaNavigationItem[] = [
+  { name: 'INDEX', path: '/' },
+  { name: 'ARCHIVE', path: '/gallery' },
+  { name: 'LORE', path: '/writing' },
+  { name: 'ABOUT', path: '/about' },
+];
+
+type YoolaArchiveData = {
+  archiveArtworks: ArchiveArtwork[];
+  artworkCategories: string[];
+  featuredArtwork: ArchiveArtwork | null;
+  loreCapsules: LoreCapsule[];
+  navigationItems: YoolaNavigationItem[];
+  profile: YoolaProfile;
+  sections: Record<string, YoolaPageSection>;
+};
+
+function getYoolaWorkspaceId() {
+  const workspaceId =
+    process.env.TUTURUUU_YOOLA_WORKSPACE_ID ??
+    process.env.NEXT_PUBLIC_TUTURUUU_YOOLA_WORKSPACE_ID;
+
+  if (!workspaceId?.trim()) {
+    throw new Error(
+      '[yoola] Missing TUTURUUU_YOOLA_WORKSPACE_ID. Copy .env.example to .env.local and point it at the EPM workspace that uses the yoola adapter.'
+    );
+  }
+
+  return workspaceId.trim();
 }
 
-export function getLoreCapsule(slug: string) {
-  return loreCapsules.find((capsule) => capsule.slug === slug);
+function asRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+}
+
+function asString(value: unknown) {
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+}
+
+function asNumber(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function asArray(value: unknown) {
+  return Array.isArray(value) ? value : [];
+}
+
+function toUpperLabel(value: string | null | undefined, fallback: string) {
+  return value?.trim().toUpperCase() || fallback;
+}
+
+function normalizeOrientation(
+  orientation: string | null,
+  width: number,
+  height: number
+): ArtworkOrientation {
+  if (orientation === 'portrait' || orientation === 'landscape' || orientation === 'square') {
+    return orientation;
+  }
+
+  if (width === height) {
+    return 'square';
+  }
+
+  return width > height ? 'landscape' : 'portrait';
+}
+
+function extractMarkdownFromEntry(entry: ExternalProjectDeliveryEntry | null) {
+  if (!entry) {
+    return null;
+  }
+
+  const markdown = entry.blocks
+    .filter((block) => block.block_type === 'markdown')
+    .map((block) => {
+      if (typeof block.content !== 'object' || block.content === null) {
+        return '';
+      }
+
+      const rawMarkdown = (block.content as { markdown?: unknown }).markdown;
+      return typeof rawMarkdown === 'string' ? rawMarkdown.trim() : '';
+    })
+    .filter((value) => value.length > 0)
+    .join('\n\n')
+    .trim();
+
+  return markdown || null;
+}
+
+function normalizeArtwork(
+  item: YoolaExternalProjectArtworkLoadingItem
+): ArchiveArtwork {
+  const width = item.width ?? 1200;
+  const height = item.height ?? 1600;
+
+  return {
+    id: item.entryId,
+    src: item.assetUrl,
+    title: item.title,
+    slug: item.slug,
+    label: item.label?.trim() || item.slug.toUpperCase(),
+    category: item.category?.trim().toUpperCase() || 'UNFILED',
+    rarity: item.rarity?.trim().toUpperCase() || 'R',
+    width,
+    height,
+    orientation: normalizeOrientation(item.orientation, width, height),
+    year: item.year?.trim() || '0000',
+    note:
+      item.note?.trim() ||
+      item.summary?.trim() ||
+      'No archive notes are attached to this entry yet.',
+    caption: item.caption?.trim() || null,
+    alt: item.altText?.trim() || item.title,
+  };
+}
+
+function normalizeLoreCapsule(
+  item: YoolaExternalProjectLoreCapsuleLoadingItem,
+  entry: ExternalProjectDeliveryEntry | null
+): LoreCapsule {
+  return {
+    slug: item.slug,
+    title: item.title,
+    subtitle: item.subtitle?.trim() || null,
+    channel: item.channel?.trim() || 'Draft Capsule',
+    status: item.status?.trim() || 'STAGING',
+    date: item.date?.trim() || 'TBD',
+    excerptMarkdown:
+      item.excerptMarkdown?.trim() ||
+      item.summary?.trim() ||
+      'No excerpt is available for this capsule yet.',
+    teaser:
+      item.teaser?.trim() ||
+      item.summary?.trim() ||
+      'This capsule is staged in the archive and ready for expansion.',
+    tags: item.tags,
+    artworkId: item.artworkEntryId,
+    bodyMarkdown: item.bodyMarkdown?.trim() || extractMarkdownFromEntry(entry),
+    profileData: asRecord(item.profileData),
+    metadata: asRecord(item.metadata),
+  };
+}
+
+function normalizeSection(
+  slug: string,
+  section: YoolaExternalProjectSectionLoadingItem
+): YoolaPageSection {
+  return {
+    bodyMarkdown: section.bodyMarkdown?.trim() || null,
+    metadata: asRecord(section.metadata),
+    profileData: asRecord(section.profileData),
+    slug,
+    subtitle: section.subtitle?.trim() || null,
+    summary: section.summary?.trim() || null,
+    title: section.title?.trim() || slug,
+  };
+}
+
+function createFallbackSection(
+  slug: string,
+  title: string,
+  summary: string | null
+): YoolaPageSection {
+  return {
+    bodyMarkdown: null,
+    metadata: {},
+    profileData: {},
+    slug,
+    subtitle: null,
+    summary,
+    title,
+  };
+}
+
+function normalizeSocialLinks(value: unknown): YoolaSocialLink[] {
+  return asArray(value)
+    .map((item) => asRecord(item))
+    .map((item) => {
+      const href = asString(item.href) ?? asString(item.url);
+      if (!href) {
+        return null;
+      }
+
+      return {
+        href,
+        icon:
+          asString(item.icon) ??
+          asString(item.platform) ??
+          asString(item.label) ??
+          'link',
+        label: asString(item.label) ?? 'Link',
+      } satisfies YoolaSocialLink;
+    })
+    .filter((item): item is YoolaSocialLink => Boolean(item));
+}
+
+function normalizeProfileStats(value: unknown) {
+  const stats = asArray(value)
+    .map((item) => asRecord(item))
+    .map((item) => {
+      const label = asString(item.label);
+      const rawValue = item.value;
+      if (!label || (typeof rawValue !== 'number' && typeof rawValue !== 'string')) {
+        return null;
+      }
+
+      return {
+        label: label.toUpperCase(),
+        max: asNumber(item.max),
+        value: rawValue,
+      } satisfies YoolaProfileStat;
+    })
+    .filter((item): item is YoolaProfileStat => Boolean(item));
+
+  return stats.length > 0 ? stats : defaultProfileStats;
+}
+
+function normalizeProfileMarkers(value: unknown) {
+  const markers = asArray(value)
+    .map((item) => asRecord(item))
+    .map((item) => {
+      const label = asString(item.label);
+      const markerValue = asString(item.value);
+      if (!label || !markerValue) {
+        return null;
+      }
+
+      return {
+        label,
+        value: markerValue,
+      } satisfies YoolaProfileMarker;
+    })
+    .filter((item): item is YoolaProfileMarker => Boolean(item));
+
+  return markers.length > 0 ? markers : defaultProfileMarkers;
+}
+
+function normalizeProfile(
+  baseProfileData: Record<string, unknown>,
+  aboutProfileData: Record<string, unknown>
+): YoolaProfile {
+  const mergedProfileData = {
+    ...baseProfileData,
+    ...aboutProfileData,
+  };
+
+  return {
+    brand: asString(mergedProfileData.brand) ?? 'YOOLA',
+    entityId: asString(mergedProfileData.entityId),
+    markers: normalizeProfileMarkers(mergedProfileData.markers),
+    name: asString(mergedProfileData.name) ?? 'Yol Yoola',
+    rank: asString(mergedProfileData.rank),
+    role: asString(mergedProfileData.role) ?? 'Creator // Artist',
+    socialLinks: normalizeSocialLinks(
+      mergedProfileData.socialLinks ?? mergedProfileData.socials
+    ),
+    stats: normalizeProfileStats(mergedProfileData.stats),
+    statusLabel:
+      asString(mergedProfileData.statusLabel) ??
+      asString(mergedProfileData.status),
+  };
+}
+
+function resolveCollectionPath(slug: string, title: string, href: string | null) {
+  if (href) {
+    return href;
+  }
+
+  const normalizedSlug = slug.trim().toLowerCase();
+  if (normalizedSlug === 'artworks' || normalizedSlug === 'artwork') {
+    return '/gallery';
+  }
+
+  if (
+    normalizedSlug === 'lore-capsules' ||
+    normalizedSlug === 'lore_capsules' ||
+    normalizedSlug === 'lore' ||
+    normalizedSlug === 'writing'
+  ) {
+    return '/writing';
+  }
+
+  const normalizedTitle = title.trim().toLowerCase();
+  if (normalizedTitle.includes('art')) {
+    return '/gallery';
+  }
+
+  if (normalizedTitle.includes('lore') || normalizedTitle.includes('writing')) {
+    return '/writing';
+  }
+
+  return null;
+}
+
+async function createClient(baseUrl: string) {
+  return createTuturuuuClient({
+    baseUrl,
+    fetch: (input, init) =>
+      fetch(input, {
+        ...init,
+        cache: 'force-cache',
+        next: { revalidate: DELIVERY_REVALIDATE_SECONDS },
+      }),
+  });
+}
+
+const getYoolaArchiveDataInternal = cache(async (): Promise<YoolaArchiveData> => {
+  const workspaceId = getYoolaWorkspaceId();
+  const baseUrl = DEFAULT_TUTURUUU_BASE_URL;
+
+  try {
+    const client = await createClient(baseUrl);
+    const delivery = await client.externalProjects.getDelivery(workspaceId);
+
+    if (!delivery.loadingData || delivery.loadingData.adapter !== 'yoola') {
+      throw new Error(
+        `[yoola] Workspace ${workspaceId} is not bound to an external project using the yoola adapter.`
+      );
+    }
+
+    const loadingData = delivery.loadingData as YoolaExternalProjectLoadingData;
+    const archiveArtworks = loadingData.artworks.map(normalizeArtwork);
+    const entriesBySlug = new Map(
+      delivery.collections.flatMap((collection) =>
+        collection.entries.map((entry) => [entry.slug, entry] as const)
+      )
+    );
+    const loreCapsules = loadingData.loreCapsules.map((item) =>
+      normalizeLoreCapsule(item, entriesBySlug.get(item.slug) ?? null)
+    );
+
+    const collectionBySlug = new Map(
+      delivery.collections.map((collection) => [collection.slug, collection] as const)
+    );
+
+    const sections = Object.fromEntries(
+      Object.entries(loadingData.singletonSections).map(([slug, section]) => [
+        slug,
+        normalizeSection(slug, section),
+      ])
+    ) as Record<string, YoolaPageSection>;
+
+    sections.gallery ??= createFallbackSection(
+      'gallery',
+      '[ Archive ]',
+      collectionBySlug.get('artworks')?.description ?? null
+    );
+    sections.writing ??= createFallbackSection(
+      'writing',
+      '[ Lore ]',
+      collectionBySlug.get('lore-capsules')?.description ?? null
+    );
+    sections.about ??= createFallbackSection(
+      'about',
+      'Profile Dossier',
+      null
+    );
+
+    const profile = normalizeProfile(
+      asRecord(delivery.profileData),
+      sections.about.profileData
+    );
+
+    const resolvedNavigationItems = buildEpmNavigationItems(delivery.collections)
+      .map((item) => {
+        const path = resolveCollectionPath(item.slug, item.title, item.href);
+        if (!path) {
+          return null;
+        }
+
+        return {
+          name: item.title.trim().toUpperCase(),
+          path,
+        } satisfies YoolaNavigationItem;
+      })
+      .filter((item): item is YoolaNavigationItem => Boolean(item));
+
+    const homeNavigationLabel =
+      toUpperLabel(asString(sections.home?.profileData.navLabel), 'INDEX');
+    const aboutNavigationLabel = toUpperLabel(
+      asString(sections.about.profileData.navLabel) ?? sections.about.title,
+      'ABOUT'
+    );
+
+    const seenPaths = new Set<string>(['/', '/about']);
+    const navigationItems = [
+      { name: homeNavigationLabel, path: '/' },
+      ...resolvedNavigationItems.filter((item) => {
+        if (seenPaths.has(item.path)) {
+          return false;
+        }
+
+        seenPaths.add(item.path);
+        return true;
+      }),
+      { name: aboutNavigationLabel, path: '/about' },
+    ];
+
+    return {
+      archiveArtworks,
+      artworkCategories: loadingData.artworkCategories.map((category) =>
+        category.toUpperCase()
+      ),
+      featuredArtwork: loadingData.featuredArtwork
+        ? normalizeArtwork(loadingData.featuredArtwork)
+        : archiveArtworks[0] ?? null,
+      loreCapsules,
+      navigationItems:
+        navigationItems.length > 2 ? navigationItems : defaultNavigationItems,
+      profile,
+      sections,
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Unknown EPM delivery failure';
+
+    throw new Error(
+      `[yoola] Failed to load EPM delivery from ${baseUrl} for workspace ${workspaceId}: ${message}`
+    );
+  }
+});
+
+export async function getYoolaArchiveData() {
+  return getYoolaArchiveDataInternal();
+}
+
+export async function getArchiveArtworks() {
+  const data = await getYoolaArchiveDataInternal();
+  return data.archiveArtworks;
+}
+
+export async function getLoreCapsules() {
+  const data = await getYoolaArchiveDataInternal();
+  return data.loreCapsules;
+}
+
+export async function getNavigationItems() {
+  const data = await getYoolaArchiveDataInternal();
+  return data.navigationItems;
+}
+
+export async function getYoolaProfile() {
+  const data = await getYoolaArchiveDataInternal();
+  return data.profile;
+}
+
+export async function getYoolaSection(slug: string) {
+  const data = await getYoolaArchiveDataInternal();
+  return data.sections[slug] ?? null;
+}
+
+export async function getArtworkById(id: string) {
+  const artworks = await getArchiveArtworks();
+  return artworks.find((artwork) => artwork.id === id) ?? null;
+}
+
+export async function getLoreCapsule(slug: string) {
+  const loreCapsules = await getLoreCapsules();
+  return loreCapsules.find((capsule) => capsule.slug === slug) ?? null;
 }
