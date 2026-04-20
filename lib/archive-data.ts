@@ -59,6 +59,10 @@ function asStringArray(value: unknown) {
     : [];
 }
 
+function dedupeStrings(values: string[]) {
+  return [...new Set(values)];
+}
+
 function selectFeaturedItems<T extends { id?: string; slug: string }>({
   items,
   limit = 8,
@@ -102,6 +106,24 @@ function getFeaturedLoreSlugs(section: YoolaPageSection | null) {
     ...asStringArray(profileData.carouselLoreSlugs),
     ...asStringArray(profileData.featuredSlugs),
   ];
+}
+
+function getConfiguredArtworkCategories(
+  section: YoolaPageSection | null,
+  artworks: Array<{ category: string }>,
+) {
+  const configured = dedupeStrings(
+    asStringArray(asRecord(section?.profileData).categoryOptions).map((category) =>
+      category.toUpperCase(),
+    ),
+  );
+
+  if (configured.length === 0) {
+    return [];
+  }
+
+  const available = new Set(artworks.map((artwork) => artwork.category.toUpperCase()));
+  return configured.filter((category) => available.has(category));
 }
 
 export function getYoolaApiBaseUrl() {
@@ -252,7 +274,10 @@ export function buildYoolaArchiveData(delivery: ExternalProjectDeliveryPayload):
 
   return {
     archiveArtworks,
-    artworkCategories: loadingData.artworkCategories.map((category) => category.toUpperCase()),
+    artworkCategories: getConfiguredArtworkCategories(
+      sections.gallery ?? null,
+      archiveArtworks,
+    ),
     featuredArtwork,
     featuredArtworks,
     featuredLoreCapsules,
