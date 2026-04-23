@@ -22,6 +22,7 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
   const expandTimeoutRef = useRef<number | null>(null);
   const collapseTimeoutRef = useRef<number | null>(null);
@@ -54,10 +55,6 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
   }, []);
 
   useEffect(() => {
-    if (!isDesktop) {
-      return;
-    }
-
     if (expandTimeoutRef.current !== null) {
       window.clearTimeout(expandTimeoutRef.current);
       expandTimeoutRef.current = null;
@@ -73,18 +70,51 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
       postNavTimeoutRef.current = null;
     }
 
-    setIsFocused(false);
+    if (isDesktop) {
+      postNavTimeoutRef.current = window.setTimeout(() => {
+        const navHovered = navRef.current?.matches(":hover") ?? false;
+
+        if (!navHovered) {
+          setIsHovered(false);
+        }
+
+        setIsFocused(false);
+        postNavTimeoutRef.current = null;
+      }, NAVBAR_POST_NAV_CHECK_DELAY_MS);
+      return;
+    }
 
     postNavTimeoutRef.current = window.setTimeout(() => {
-      const navHovered = navRef.current?.matches(":hover") ?? false;
-
-      if (!navHovered) {
-        setIsHovered(false);
-      }
-
+      setIsMobileExpanded(false);
+      setIsFocused(false);
       postNavTimeoutRef.current = null;
     }, NAVBAR_POST_NAV_CHECK_DELAY_MS);
   }, [isDesktop, pathname]);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      if (navRef.current?.contains(target)) {
+        return;
+      }
+
+      clearHoverTimers();
+      setIsHovered(false);
+      setIsMobileExpanded(false);
+      setIsFocused(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+    };
+  }, []);
 
   if (isOpen) {
     return null;
@@ -96,9 +126,9 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
         ? pathname === "/"
         : pathname === item.path || pathname.startsWith(`${item.path}/`),
     ) ?? items[0];
-  const isExpanded = isHovered || isFocused;
-  const showExpandedLayer = !isDesktop || isExpanded;
-  const showSummaryLayer = isDesktop && !isExpanded;
+  const isExpanded = isDesktop ? isHovered || isFocused : isMobileExpanded;
+  const showExpandedLayer = isExpanded;
+  const showSummaryLayer = !isExpanded;
 
   const clearHoverTimers = () => {
     if (expandTimeoutRef.current !== null) {
@@ -157,7 +187,18 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
   const collapseNow = () => {
     clearHoverTimers();
     setIsHovered(false);
+    setIsMobileExpanded(false);
     setIsFocused(false);
+  };
+
+  const expandNow = () => {
+    clearHoverTimers();
+    if (isDesktop) {
+      setIsHovered(true);
+    } else {
+      setIsMobileExpanded(true);
+    }
+    setIsFocused(true);
   };
 
   return (
@@ -167,11 +208,7 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
       animate={{ y: 0 }}
       onMouseEnter={scheduleExpand}
       onMouseLeave={scheduleCollapse}
-      onFocusCapture={() => {
-        clearHoverTimers();
-        setIsHovered(true);
-        setIsFocused(true);
-      }}
+      onFocusCapture={expandNow}
       onBlurCapture={(event) => {
         if (
           event.relatedTarget instanceof Node &&
@@ -183,16 +220,18 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
         setIsFocused(false);
         collapseNow();
       }}
-      className={`pointer-events-none fixed top-5 left-1/2 z-50 w-[min(calc(100%-1.5rem),72rem)] -translate-x-1/2 transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-        isExpanded ? "md:w-[min(calc(100%-1.5rem),72rem)]" : "md:w-[11.25rem]"
+      className={`pointer-events-none fixed top-5 left-1/2 z-50 -translate-x-1/2 transition-[width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        isExpanded
+          ? "w-[min(calc(100%-1rem),22rem)] md:w-[min(calc(100%-1.5rem),72rem)]"
+          : "w-[7.75rem] md:w-[11.25rem]"
       }`}
     >
       <div
-        className={`yoola-nav-shell pointer-events-auto px-3 py-3 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isExpanded ? "md:px-4 md:py-3" : "md:px-2 md:py-2"
+        className={`yoola-nav-shell pointer-events-auto transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isExpanded ? "px-3 py-3 md:px-4 md:py-3" : "px-2 py-2"
         } ${isExpanded ? "yoola-nav-shell-expanded" : "yoola-nav-shell-collapsed"}`}
       >
-        <div className={`relative ${isExpanded ? "md:h-[4.15rem]" : "md:h-[2.6rem]"}`}>
+        <div className={`relative ${isExpanded ? "md:h-[4.15rem]" : "h-[2.35rem] md:h-[2.6rem]"}`}>
           <motion.div
             animate={{
               opacity: showSummaryLayer ? 1 : 0,
@@ -200,14 +239,24 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
               y: showSummaryLayer ? 0 : -10,
             }}
             transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="yoola-nav-summary hidden items-center justify-between gap-3 md:flex"
+            className="yoola-nav-summary flex items-center justify-between gap-3"
             style={{
               pointerEvents: showSummaryLayer ? "auto" : "none",
             }}
           >
-            <div className="yoola-nav-summary-pill">
+            <button
+              type="button"
+              onClick={() => {
+                if (isExpanded) {
+                  collapseNow();
+                } else {
+                  expandNow();
+                }
+              }}
+              className="yoola-nav-summary-pill"
+            >
               <span className="yoola-nav-summary-value">{activeItem?.name}</span>
-            </div>
+            </button>
           </motion.div>
 
           <motion.div
@@ -223,7 +272,7 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
             }}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="yoola-nav-frame flex flex-1 items-center justify-center gap-1 overflow-x-auto px-1 md:gap-2">
+              <div className="yoola-nav-frame flex flex-col items-stretch gap-1 px-1 md:flex-1 md:flex-row md:items-center md:justify-center md:gap-2">
                 {items.map((item) => {
                   const isActive =
                     item.path === "/"
@@ -234,7 +283,7 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
                     <Link
                       key={item.path}
                       href={item.path}
-                      className={`yoola-nav-link font-display text-sm font-black tracking-[0.08em] uppercase transition-all md:text-[1.15rem] ${
+                      className={`yoola-nav-link block w-full font-display text-sm font-black tracking-[0.08em] uppercase transition-all md:w-auto md:text-[1.15rem] ${
                         isActive
                           ? "yoola-nav-link-active text-[#f0edf5]"
                           : "text-white/72 hover:text-white"
@@ -249,7 +298,7 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
                 href={cmsHref}
                 target="_blank"
                 rel="noreferrer"
-                className="yoola-nav-cms font-display text-center text-sm font-black tracking-[0.12em] uppercase"
+                className="yoola-nav-cms w-full font-display text-center text-sm font-black tracking-[0.12em] uppercase md:w-auto"
               >
                 CMS
               </a>
