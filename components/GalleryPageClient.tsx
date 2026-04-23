@@ -5,44 +5,25 @@ import GalleryLightbox from "@/components/GalleryLightbox";
 import MarkdownContent from "@/components/MarkdownContent";
 import { useInfiniteVisibleCount } from "@/hooks/use-infinite-visible-count";
 import type { ArchiveArtwork, YoolaPageSection } from "@/lib/archive-data";
-import { cn } from "@/lib/utils";
 import { useYoolaArchiveDataQuery } from "@/lib/yoola-query";
 import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type Ref } from "react";
+import { useState } from "react";
 
-function ArtworkMasonryImage({
-  artwork,
-  frameRef,
-  frameClassName,
-  frameStyle,
-  imageClassName,
-}: {
-  artwork: ArchiveArtwork;
-  frameRef?: Ref<HTMLDivElement>;
-  frameClassName?: string;
-  frameStyle?: CSSProperties;
-  imageClassName?: string;
-}) {
-  const fallbackAspectClass =
-    artwork.orientation === "landscape"
-      ? "aspect-[16/10]"
-      : artwork.orientation === "square"
-        ? "aspect-square"
-        : "aspect-[4/5]";
-
+function ArtworkMasonryImage({ artwork }: { artwork: ArchiveArtwork }) {
   if (!artwork.src) {
     return (
-      <div
-        ref={frameRef}
-        style={frameStyle}
-        className={cn(
-          "relative overflow-hidden rounded-[1rem] border border-white/10 bg-white/[0.03]",
-          !frameStyle ? fallbackAspectClass : null,
-          frameClassName,
-        )}
-      >
+      <div className="relative overflow-hidden rounded-[1rem] border border-white/10 bg-white/[0.03]">
+        <div
+          className={`${
+            artwork.orientation === "landscape"
+              ? "aspect-[16/10]"
+              : artwork.orientation === "square"
+                ? "aspect-square"
+                : "aspect-[4/5]"
+          }`}
+        />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(243,106,255,0.16),_transparent_48%),linear-gradient(180deg,_rgba(255,255,255,0.04),_rgba(11,5,16,0.82))]" />
         <div className="absolute inset-0 flex items-center justify-center font-mono text-[11px] tracking-[0.28em] text-white/45 uppercase">
           No Preview
@@ -52,24 +33,14 @@ function ArtworkMasonryImage({
   }
 
   return (
-    <div
-      ref={frameRef}
-      style={frameStyle}
-      className={cn(
-        "relative overflow-hidden rounded-[1rem] border border-white/10 bg-black/50 transition-[height,border-color,box-shadow,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-        !frameStyle ? fallbackAspectClass : null,
-        frameClassName,
-      )}
-    >
+    <div className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/50">
       <Image
         src={artwork.src}
         alt={artwork.alt || artwork.title}
-        fill
+        width={artwork.width}
+        height={artwork.height}
         sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className={cn(
-          "object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          imageClassName,
-        )}
+        className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
       />
     </div>
   );
@@ -81,7 +52,7 @@ function ArchiveFilterButton({
   onClick,
 }: {
   active: boolean;
-  children: ReactNode;
+  children: React.ReactNode;
   onClick: () => void;
 }) {
   return (
@@ -95,187 +66,6 @@ function ArchiveFilterButton({
       }`}
     >
       {children}
-    </button>
-  );
-}
-
-type ArtworkCardLayout = {
-  cardHeight: number;
-  baseImageHeight: number;
-  metadataHeight: number;
-};
-
-function ArtworkArchiveCard({ artwork, onOpen }: { artwork: ArchiveArtwork; onOpen: () => void }) {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const metadataMeasureRef = useRef<HTMLDivElement>(null);
-  const [layout, setLayout] = useState<ArtworkCardLayout | null>(null);
-
-  useEffect(() => {
-    let frame = 0;
-
-    const updateLayout = () => {
-      cancelAnimationFrame(frame);
-      frame = window.requestAnimationFrame(() => {
-        const buttonElement = buttonRef.current;
-        const headerElement = headerRef.current;
-        const metadataMeasureElement = metadataMeasureRef.current;
-
-        if (!buttonElement || !headerElement || !metadataMeasureElement) {
-          return;
-        }
-
-        const contentWidth = Math.max(buttonElement.clientWidth - 24, 0);
-        const headerHeight = headerElement.offsetHeight;
-        const metadataHeight = metadataMeasureElement.offsetHeight;
-        const baseImageHeight =
-          artwork.width > 0 ? contentWidth * (artwork.height / artwork.width) : 0;
-
-        const nextLayout = {
-          cardHeight: Math.ceil(headerHeight + baseImageHeight + metadataHeight + 52),
-          baseImageHeight: Math.ceil(baseImageHeight),
-          metadataHeight: Math.ceil(metadataHeight),
-        };
-
-        if (
-          nextLayout.cardHeight === 0 ||
-          nextLayout.baseImageHeight === 0 ||
-          nextLayout.metadataHeight === 0
-        ) {
-          return;
-        }
-
-        setLayout((current) => {
-          if (
-            current &&
-            current.cardHeight === nextLayout.cardHeight &&
-            current.baseImageHeight === nextLayout.baseImageHeight &&
-            current.metadataHeight === nextLayout.metadataHeight
-          ) {
-            return current;
-          }
-
-          return nextLayout;
-        });
-      });
-    };
-
-    updateLayout();
-
-    const observer = new ResizeObserver(() => {
-      updateLayout();
-    });
-
-    if (buttonRef.current) {
-      observer.observe(buttonRef.current);
-    }
-    if (headerRef.current) {
-      observer.observe(headerRef.current);
-    }
-    if (metadataMeasureRef.current) {
-      observer.observe(metadataMeasureRef.current);
-    }
-
-    return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-    };
-  }, [
-    artwork.id,
-    artwork.src,
-    artwork.width,
-    artwork.height,
-    artwork.orientation,
-    artwork.caption,
-    artwork.note,
-  ]);
-
-  const reservedMetadataHeight = layout ? layout.metadataHeight + 16 : null;
-  const measuredCardStyle =
-    layout && reservedMetadataHeight !== null
-      ? ({
-          "--gallery-card-height": `${layout.cardHeight}px`,
-          "--gallery-image-base-height": `${layout.baseImageHeight}px`,
-          "--gallery-image-expanded-height": `${layout.baseImageHeight + reservedMetadataHeight}px`,
-          "--gallery-metadata-height": `${reservedMetadataHeight}px`,
-          height: "var(--gallery-card-height)",
-        } as CSSProperties)
-      : undefined;
-
-  return (
-    <button
-      ref={buttonRef}
-      type="button"
-      onClick={onOpen}
-      style={measuredCardStyle}
-      className="group relative w-full rounded-[1.4rem] border border-white/10 bg-black/24 p-3 text-left transition-[transform,border-color,background-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-[#f36aff]/50 hover:bg-black/32 focus-visible:-translate-y-1 focus-visible:border-[#f36aff]/50 focus-visible:bg-black/32 focus-visible:outline-none"
-    >
-      <div ref={headerRef} className="mb-3 flex items-center justify-between gap-3">
-        <span className="font-mono text-[10px] tracking-[0.3em] text-white/48 uppercase">
-          {artwork.label}
-        </span>
-        <span className="font-mono text-[10px] tracking-[0.28em] text-white/38 uppercase">
-          {artwork.year}
-        </span>
-      </div>
-
-      <ArtworkMasonryImage
-        artwork={artwork}
-        frameStyle={
-          layout ? ({ height: "var(--gallery-image-expanded-height)" } as CSSProperties) : undefined
-        }
-        frameClassName="group-hover:[height:var(--gallery-image-base-height)] group-hover:border-[#f36aff]/35 group-hover:shadow-[0_18px_40px_rgba(0,0,0,0.22)] group-focus-visible:[height:var(--gallery-image-base-height)] group-focus-visible:border-[#f36aff]/35 group-focus-visible:shadow-[0_18px_40px_rgba(0,0,0,0.22)]"
-        imageClassName="scale-[1.06] group-hover:scale-100 group-focus-visible:scale-100"
-      />
-
-      <div
-        className={cn(
-          "mt-0 translate-y-[-0.65rem] space-y-3 overflow-hidden opacity-0 transition-[max-height,opacity,transform,margin] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:mt-4 group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:mt-4 group-focus-visible:translate-y-0 group-focus-visible:opacity-100",
-          layout
-            ? "max-h-0 group-hover:[max-height:var(--gallery-metadata-height)] group-focus-visible:[max-height:var(--gallery-metadata-height)]"
-            : null,
-        )}
-      >
-        <div>
-          <h2 className="font-display text-2xl font-black tracking-[-0.05em] text-white uppercase transition-colors group-hover:text-[#ffb3f0] group-focus-visible:text-[#ffb3f0]">
-            {artwork.title}
-          </h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
-              {artwork.category}
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
-              {artwork.rarity}
-            </span>
-          </div>
-        </div>
-        <p className="font-mono text-xs leading-6 text-white/62">
-          {artwork.caption ?? artwork.note}
-        </p>
-      </div>
-
-      <div
-        ref={metadataMeasureRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute right-3 bottom-3 left-3 invisible space-y-3"
-      >
-        <div>
-          <h2 className="font-display text-2xl font-black tracking-[-0.05em] text-white uppercase">
-            {artwork.title}
-          </h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
-              {artwork.category}
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
-              {artwork.rarity}
-            </span>
-          </div>
-        </div>
-        <p className="font-mono text-xs leading-6 text-white/62">
-          {artwork.caption ?? artwork.note}
-        </p>
-      </div>
     </button>
   );
 }
@@ -436,10 +226,41 @@ export default function GalleryPageClient() {
                       transition={{ duration: 0.32, delay: (index % 6) * 0.04 }}
                       className="mb-5 break-inside-avoid"
                     >
-                      <ArtworkArchiveCard
-                        artwork={art}
-                        onOpen={() => openViewer(visibleArtworks, art.id)}
-                      />
+                      <button
+                        type="button"
+                        onClick={() => openViewer(visibleArtworks, art.id)}
+                        className="group w-full rounded-[1.4rem] border border-white/10 bg-black/24 p-3 text-left transition-transform duration-300 hover:-translate-y-1 hover:border-[#f36aff]/50 hover:bg-black/32"
+                      >
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <span className="font-mono text-[10px] tracking-[0.3em] text-white/48 uppercase">
+                            {art.label}
+                          </span>
+                          <span className="font-mono text-[10px] tracking-[0.28em] text-white/38 uppercase">
+                            {art.year}
+                          </span>
+                        </div>
+
+                        <ArtworkMasonryImage artwork={art} />
+
+                        <div className="mt-4 space-y-3">
+                          <div>
+                            <h2 className="font-display text-2xl font-black tracking-[-0.05em] text-white uppercase transition-colors group-hover:text-[#ffb3f0]">
+                              {art.title}
+                            </h2>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
+                                {art.category}
+                              </span>
+                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
+                                {art.rarity}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="font-mono text-xs leading-6 text-white/62">
+                            {art.caption ?? art.note}
+                          </p>
+                        </div>
+                      </button>
                     </motion.div>
                   ))}
                 </div>
