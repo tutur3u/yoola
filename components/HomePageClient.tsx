@@ -101,7 +101,7 @@ export default function HomePageClient() {
     setIsTransitioning(true);
 
     window.setTimeout(() => {
-      router.push("/gallery");
+      router.push("/artwork");
     }, 800);
   };
 

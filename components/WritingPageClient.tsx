@@ -34,6 +34,15 @@ function getSectionPanels(section: YoolaPageSection | null) {
     .filter((panel): panel is { title: string; body: string } => Boolean(panel));
 }
 
+function replaceLoreCopy(value: string | null | undefined, fallback: string) {
+  const source = value?.trim() || fallback;
+
+  return source
+    .replace(/\bLORE\b/g, "WRITING")
+    .replace(/\bLore\b/g, "Writing")
+    .replace(/\blore\b/g, "writing");
+}
+
 export default function WritingPageClient() {
   const archiveQuery = useYoolaArchiveDataQuery();
   const artworks: ArchiveArtwork[] = archiveQuery.data?.archiveArtworks ?? [];
@@ -52,6 +61,8 @@ export default function WritingPageClient() {
   const publishedCount = loreCapsules.filter(
     (capsule) => capsule.status.toLowerCase() === "published",
   ).length;
+  const sectionTitle = replaceLoreCopy(section?.title, "[ Writing ]");
+  const sectionSubtitle = replaceLoreCopy(section?.subtitle, "Story archive");
   const { hasMore, sentinelRef, visibleCount } = useInfiniteVisibleCount({
     pageSize: 10,
     resetKey: section?.slug ?? "writing",
@@ -77,10 +88,10 @@ export default function WritingPageClient() {
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
-                {section?.subtitle ?? "Story archive"}
+                {sectionSubtitle}
               </p>
               <h1 className="mt-4 font-display text-6xl font-black tracking-[-0.06em] text-white uppercase md:text-8xl">
-                {section?.title ?? "[ Lore ]"}
+                {sectionTitle}
               </h1>
               {heroMarkdown ? (
                 <div className="mt-5 max-w-2xl">
@@ -277,13 +288,13 @@ export default function WritingPageClient() {
         ) : (
           <div className="file-frame border border-white/10 bg-black/55 p-10 backdrop-blur">
             <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
-              Lore Queue Empty
+              Writing Queue Empty
             </p>
             <h2 className="mt-4 font-display text-4xl font-black tracking-tight text-white uppercase">
-              No lore capsules are available yet.
+              No writing entries are available yet.
             </h2>
             <p className="mt-4 max-w-2xl font-mono text-sm leading-7 text-white/65">
-              Publish or stage writings and they will appear here automatically.
+              Publish or stage writing pieces and they will appear here automatically.
             </p>
           </div>
         )}

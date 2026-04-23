@@ -36,9 +36,9 @@ export type {
 const DELIVERY_REVALIDATE_SECONDS = 60;
 
 export const defaultNavigationItems: YoolaNavigationItem[] = [
-  { name: "INDEX", path: "/" },
-  { name: "ARCHIVE", path: "/gallery" },
-  { name: "LORE", path: "/writing" },
+  { name: "HOME", path: "/" },
+  { name: "ARTWORK", path: "/artwork" },
+  { name: "WRITING", path: "/writing" },
   { name: "ABOUT", path: "/about" },
 ];
 
@@ -147,12 +147,6 @@ export function getYoolaWorkspaceId() {
   return workspaceId.trim();
 }
 
-function toUpperLabel(value: unknown, fallback: string) {
-  return typeof value === "string" && value.trim().length > 0
-    ? value.trim().toUpperCase()
-    : fallback;
-}
-
 async function createClient(baseUrl: string) {
   return createTuturuuuClient({
     baseUrl,
@@ -218,7 +212,7 @@ export function buildYoolaArchiveData(delivery: ExternalProjectDeliveryPayload):
   );
   sections.writing ??= createFallbackSection(
     "writing",
-    "[ Lore ]",
+    "[ Writing ]",
     collectionBySlug.get("lore-capsules")?.description ?? null,
   );
   sections.about ??= createFallbackSection("about", "Profile Dossier", null);
@@ -252,32 +246,29 @@ export function buildYoolaArchiveData(delivery: ExternalProjectDeliveryPayload):
     })
     .filter((item): item is YoolaNavigationItem => Boolean(item));
 
-  const homeNavigationLabel = toUpperLabel(sections.home?.profileData.navLabel, "INDEX");
-  const aboutNavigationLabel = toUpperLabel(
-    sections.about.profileData.navLabel ?? sections.about.title,
-    "ABOUT",
-  );
-
   const seenPaths = new Set<string>(["/", "/about"]);
   const navigationItems = [
-    { name: homeNavigationLabel, path: "/" },
-    ...resolvedNavigationItems.filter((item) => {
-      if (seenPaths.has(item.path)) {
-        return false;
-      }
+    { name: "HOME", path: "/" },
+    ...resolvedNavigationItems
+      .filter((item) => {
+        if (seenPaths.has(item.path)) {
+          return false;
+        }
 
-      seenPaths.add(item.path);
-      return true;
-    }),
-    { name: aboutNavigationLabel, path: "/about" },
+        seenPaths.add(item.path);
+        return true;
+      })
+      .map((item) => ({
+        ...item,
+        name:
+          item.path === "/artwork" ? "ARTWORK" : item.path === "/writing" ? "WRITING" : item.name,
+      })),
+    { name: "ABOUT", path: "/about" },
   ];
 
   return {
     archiveArtworks,
-    artworkCategories: getConfiguredArtworkCategories(
-      sections.gallery ?? null,
-      archiveArtworks,
-    ),
+    artworkCategories: getConfiguredArtworkCategories(sections.gallery ?? null, archiveArtworks),
     featuredArtwork,
     featuredArtworks,
     featuredLoreCapsules,

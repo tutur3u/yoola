@@ -436,7 +436,7 @@ export function resolveCollectionPath(slug: string, title: string, href: string 
 
   const normalizedSlug = slug.trim().toLowerCase();
   if (normalizedSlug === "artworks" || normalizedSlug === "artwork") {
-    return "/gallery";
+    return "/artwork";
   }
 
   if (
@@ -450,7 +450,7 @@ export function resolveCollectionPath(slug: string, title: string, href: string 
 
   const normalizedTitle = title.trim().toLowerCase();
   if (normalizedTitle.includes("art")) {
-    return "/gallery";
+    return "/artwork";
   }
 
   if (normalizedTitle.includes("lore") || normalizedTitle.includes("writing")) {

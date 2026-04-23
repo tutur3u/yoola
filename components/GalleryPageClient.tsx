@@ -8,47 +8,65 @@ import type { ArchiveArtwork, YoolaPageSection } from "@/lib/archive-data";
 import { useYoolaArchiveDataQuery } from "@/lib/yoola-query";
 import { motion } from "motion/react";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 
-function ArtworkCardImage({ artwork }: { artwork: ArchiveArtwork }) {
+function ArtworkMasonryImage({ artwork }: { artwork: ArchiveArtwork }) {
   if (!artwork.src) {
     return (
-      <div
-        className={`relative mb-4 overflow-hidden border border-white/10 ${
-          artwork.orientation === "landscape"
-            ? "aspect-[16/10]"
-            : artwork.orientation === "square"
-              ? "aspect-square"
-              : "aspect-[4/5]"
-        }`}
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(176,38,255,0.18),_transparent_45%),linear-gradient(180deg,_rgba(255,255,255,0.05),_rgba(0,0,0,0.75))]" />
-        <div className="absolute inset-0 flex items-center justify-center font-mono text-[11px] uppercase tracking-[0.35em] text-white/40">
-          No Visual Yet
+      <div className="relative overflow-hidden rounded-[1rem] border border-white/10 bg-white/[0.03]">
+        <div
+          className={`${
+            artwork.orientation === "landscape"
+              ? "aspect-[16/10]"
+              : artwork.orientation === "square"
+                ? "aspect-square"
+                : "aspect-[4/5]"
+          }`}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(243,106,255,0.16),_transparent_48%),linear-gradient(180deg,_rgba(255,255,255,0.04),_rgba(11,5,16,0.82))]" />
+        <div className="absolute inset-0 flex items-center justify-center font-mono text-[11px] tracking-[0.28em] text-white/45 uppercase">
+          No Preview
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`relative mb-4 overflow-hidden border border-white/10 ${
-        artwork.orientation === "landscape"
-          ? "aspect-[16/10]"
-          : artwork.orientation === "square"
-            ? "aspect-square"
-            : "aspect-[4/5]"
-      }`}
-    >
+    <div className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/50">
       <Image
         src={artwork.src}
         alt={artwork.alt || artwork.title}
-        fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-        className="object-cover grayscale-[0.15] transition-all duration-500 group-hover:scale-[1.03] group-hover:grayscale-0"
+        width={artwork.width}
+        height={artwork.height}
+        sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10" />
     </div>
+  );
+}
+
+function ArchiveFilterButton({
+  active,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-4 py-2 font-mono text-[11px] tracking-[0.24em] uppercase transition-all ${
+        active
+          ? "border-[#f36aff] bg-[#f36aff] text-[#180c1f]"
+          : "border-white/12 bg-white/[0.03] text-white/72 hover:border-white/30 hover:text-white"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -57,10 +75,7 @@ export default function GalleryPageClient() {
   const artworks: ArchiveArtwork[] = archiveQuery.data?.archiveArtworks ?? [];
   const categories = archiveQuery.data?.artworkCategories ?? [];
   const section: YoolaPageSection | null = archiveQuery.data?.sections.gallery ?? null;
-  const filters = useMemo(
-    () => ["ALL", ...categories.filter((category) => category !== "ALL")],
-    [categories],
-  );
+  const filters = ["ALL", ...categories.filter((category) => category !== "ALL")];
   const [activeFilter, setActiveFilter] = useState(filters[0] ?? "ALL");
   const [activeArtworkId, setActiveArtworkId] = useState<string | null>(null);
   const [viewerArtworks, setViewerArtworks] = useState<ArchiveArtwork[]>([]);
@@ -75,6 +90,7 @@ export default function GalleryPageClient() {
   const displayedArtworks = visibleArtworks.slice(0, visibleCount);
   const featuredArtworks = archiveQuery.data?.featuredArtworks ?? [];
   const heroMarkdown = section?.bodyMarkdown ?? section?.summary ?? null;
+  const showFeaturedRotation = activeFilter === "ALL" && featuredArtworks.length > 0;
 
   const activeLightboxIndex =
     activeArtworkId === null
@@ -87,140 +103,190 @@ export default function GalleryPageClient() {
   };
 
   return (
-    <div className="bg-gallery-vault relative isolate min-h-screen w-full overflow-hidden px-4 pt-32 pb-48 text-white md:px-8">
-      <div className="pointer-events-none gallery-spectrum-overlay absolute inset-0 opacity-90" />
-      <div className="pointer-events-none noise-overlay absolute inset-0 opacity-40" />
-      <div className="pointer-events-none scanlines absolute inset-0 opacity-10" />
+    <div className="bg-artwork-archive relative isolate min-h-screen w-full overflow-hidden px-4 pt-28 pb-40 text-white md:px-8">
+      <div className="pointer-events-none artwork-grid-overlay absolute inset-0 opacity-90" />
+      <div className="pointer-events-none noise-overlay absolute inset-0 opacity-35" />
       <div className="pointer-events-none page-vignette absolute inset-0 opacity-90" />
-      <div className="pointer-events-none absolute top-20 right-[-10%] h-72 w-72 rounded-full border border-white/10 bg-white/5 blur-3xl" />
 
-      <div className="relative z-10 mx-auto max-w-[90rem]">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
+      <div className="relative z-10 mx-auto max-w-[96rem]">
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative mb-10"
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#120a16]/90 shadow-[0_24px_90px_rgba(8,3,15,0.5)]"
         >
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-            <div className="lg:max-w-2xl xl:max-w-3xl">
-              <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
-                {section?.subtitle ?? "Visual archive"}
-              </p>
-              <h1 className="mt-4 font-display text-6xl font-black tracking-[-0.06em] text-white uppercase md:text-8xl">
-                {section?.title ?? "[ Archive ]"}
-              </h1>
-              {heroMarkdown ? (
-                <div className="mt-5 max-w-2xl">
-                  <MarkdownContent compact markdown={heroMarkdown} />
+          <div className="border-b border-white/10 px-5 py-5 md:px-8">
+            <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+              <div className="max-w-3xl">
+                <p className="font-mono text-[11px] tracking-[0.34em] text-[#f36aff] uppercase">
+                  {section?.subtitle ?? "Portfolio Index"}
+                </p>
+                <h1 className="mt-4 font-display text-4xl font-black tracking-[-0.08em] text-white uppercase sm:text-5xl md:text-6xl">
+                  Artwork
+                </h1>
+                {heroMarkdown ? (
+                  <div className="mt-4 max-w-2xl text-white/76">
+                    <MarkdownContent compact markdown={heroMarkdown} />
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-[1.1rem] border border-white/10 bg-black/18 px-4 py-3">
+                  <p className="font-mono text-[10px] tracking-[0.28em] text-white/45 uppercase">
+                    Works
+                  </p>
+                  <p className="mt-2 font-display text-3xl font-black tracking-tight text-white">
+                    {artworks.length}
+                  </p>
                 </div>
-              ) : null}
+                <div className="rounded-[1.1rem] border border-white/10 bg-black/18 px-4 py-3">
+                  <p className="font-mono text-[10px] tracking-[0.28em] text-white/45 uppercase">
+                    Categories
+                  </p>
+                  <p className="mt-2 font-display text-3xl font-black tracking-tight text-white">
+                    {categories.length}
+                  </p>
+                </div>
+                <div className="rounded-[1.1rem] border border-white/10 bg-black/18 px-4 py-3">
+                  <p className="font-mono text-[10px] tracking-[0.28em] text-white/45 uppercase">
+                    Featured
+                  </p>
+                  <p className="mt-2 font-display text-3xl font-black tracking-tight text-white">
+                    {featuredArtworks.length}
+                  </p>
+                </div>
+              </div>
             </div>
-
-            {featuredArtworks.length > 0 ? (
-              <FeaturedArtworkCarousel
-                artworks={featuredArtworks}
-                onOpenFullscreen={(artworkId) =>
-                  openViewer(featuredArtworks, artworkId)
-                }
-              />
-            ) : null}
           </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mb-16 flex flex-wrap gap-4"
-        >
-          {filters.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`border-2 px-6 py-2 font-mono text-sm font-bold uppercase tracking-widest transition-all ${
-                activeFilter === filter
-                  ? "border-[#b026ff] bg-[#b026ff] text-white"
-                  : "border-white/20 bg-black/45 text-white hover:border-[#b026ff] hover:text-[#b026ff]"
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </motion.div>
-
-        {visibleArtworks.length > 0 ? (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
-            {displayedArtworks.map((art, index) => (
-              <motion.div
-                key={art.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className={`group ${
-                  art.orientation === "landscape"
-                    ? "md:col-span-7"
-                    : art.orientation === "square"
-                      ? "md:col-span-5"
-                      : "md:col-span-4"
-                }`}
+          <div className="border-b border-white/10 bg-black/16 px-3 py-3 md:px-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/artwork"
+                className="rounded-[0.95rem] border border-[#f36aff]/60 bg-[#f36aff]/14 px-4 py-2 font-display text-sm font-black tracking-[0.12em] text-white uppercase shadow-[inset_0_-3px_0_#f36aff] transition-colors hover:bg-[#f36aff]/18"
               >
-                <button
-                  type="button"
-                  onClick={() => openViewer(visibleArtworks, art.id)}
-                  className="file-frame relative block w-full overflow-hidden border border-white/10 bg-black/70 p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:border-[#b026ff] hover:shadow-[0_20px_70px_rgba(176,38,255,0.2)]"
-                >
-                  <div className="spotlight-violet absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-80" />
-                  <ArtworkCardImage artwork={art} />
-                  <div className="absolute top-8 left-8 border border-white/20 bg-black/70 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-white transition-colors group-hover:border-[#ff72c9] group-hover:text-[#ff72c9]">
-                    {art.label}
-                  </div>
-                  <div className="absolute right-8 bottom-[8.75rem] border border-white/20 bg-black/70 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-white/75">
-                    Expand
-                  </div>
-                  <div className="relative flex flex-col gap-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-[#ff72c9]">
-                          {art.category} / {art.rarity}
-                        </p>
-                        <h2 className="mt-2 font-display text-3xl font-black tracking-tight text-white uppercase transition-colors group-hover:text-[#ff72c9]">
-                          {art.title}
-                        </h2>
-                      </div>
-                      <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/45">
-                        {art.year}
-                      </span>
-                    </div>
+                Artwork
+              </Link>
+              <Link
+                href="/writing"
+                className="rounded-[0.95rem] border border-white/10 bg-white/[0.03] px-4 py-2 font-display text-sm font-black tracking-[0.12em] text-white/72 uppercase transition-colors hover:border-white/25 hover:text-white"
+              >
+                Writing
+              </Link>
+            </div>
+          </div>
 
-                    <p className="max-w-2xl font-mono text-xs leading-6 text-white/62">
-                      {art.caption ?? art.note}
+          <div className="border-b border-white/10 px-4 py-4 md:px-6">
+            <div className="flex flex-wrap items-center gap-2">
+              {filters.map((filter) => (
+                <ArchiveFilterButton
+                  key={filter}
+                  active={activeFilter === filter}
+                  onClick={() => setActiveFilter(filter)}
+                >
+                  {filter}
+                </ArchiveFilterButton>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-8 px-4 py-5 md:px-6 md:py-6">
+            {showFeaturedRotation ? (
+              <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/24 p-4">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-[10px] tracking-[0.3em] text-white/45 uppercase">
+                      Featured Rotation
+                    </p>
+                    <p className="mt-1 font-display text-2xl font-black tracking-tight text-white uppercase">
+                      Selected Works
                     </p>
                   </div>
-                </button>
-              </motion.div>
-            ))}
-            {hasMore ? (
-              <div
-                ref={sentinelRef}
-                aria-hidden="true"
-                className="md:col-span-12 h-20 rounded-[1.2rem] border border-white/10 border-dashed bg-black/40"
-              />
+                  <p className="font-mono text-[10px] tracking-[0.3em] text-white/35 uppercase">
+                    Click any frame to expand
+                  </p>
+                </div>
+                <FeaturedArtworkCarousel
+                  artworks={featuredArtworks}
+                  onOpenFullscreen={(artworkId) => openViewer(featuredArtworks, artworkId)}
+                />
+              </div>
             ) : null}
+
+            {visibleArtworks.length > 0 ? (
+              <>
+                <div className="columns-1 gap-5 sm:columns-2 xl:columns-3 2xl:columns-4 [column-fill:_balance]">
+                  {displayedArtworks.map((art, index) => (
+                    <motion.div
+                      key={art.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.32, delay: (index % 6) * 0.04 }}
+                      className="mb-5 break-inside-avoid"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => openViewer(visibleArtworks, art.id)}
+                        className="group w-full rounded-[1.4rem] border border-white/10 bg-black/24 p-3 text-left transition-transform duration-300 hover:-translate-y-1 hover:border-[#f36aff]/50 hover:bg-black/32"
+                      >
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <span className="font-mono text-[10px] tracking-[0.3em] text-white/48 uppercase">
+                            {art.label}
+                          </span>
+                          <span className="font-mono text-[10px] tracking-[0.28em] text-white/38 uppercase">
+                            {art.year}
+                          </span>
+                        </div>
+
+                        <ArtworkMasonryImage artwork={art} />
+
+                        <div className="mt-4 space-y-3">
+                          <div>
+                            <h2 className="font-display text-2xl font-black tracking-[-0.05em] text-white uppercase transition-colors group-hover:text-[#ffb3f0]">
+                              {art.title}
+                            </h2>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
+                                {art.category}
+                              </span>
+                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
+                                {art.rarity}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="font-mono text-xs leading-6 text-white/62">
+                            {art.caption ?? art.note}
+                          </p>
+                        </div>
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+                {hasMore ? (
+                  <div
+                    ref={sentinelRef}
+                    aria-hidden="true"
+                    className="h-16 rounded-[1rem] border border-white/10 border-dashed bg-white/[0.03]"
+                  />
+                ) : null}
+              </>
+            ) : (
+              <div className="rounded-[1.5rem] border border-white/10 bg-black/24 p-8">
+                <p className="font-mono text-[11px] tracking-[0.34em] text-[#f36aff] uppercase">
+                  Archive Empty
+                </p>
+                <h2 className="mt-3 font-display text-3xl font-black tracking-tight text-white uppercase">
+                  Nothing matches this filter yet.
+                </h2>
+                <p className="mt-3 max-w-2xl font-mono text-sm leading-7 text-white/62">
+                  Publish or categorize more visuals and they will appear here automatically.
+                </p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="file-frame border border-white/10 bg-black/55 p-10 backdrop-blur">
-            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#ff72c9]">
-              Archive Empty
-            </p>
-            <h2 className="mt-4 font-display text-4xl font-black tracking-tight text-white uppercase">
-              Nothing has been published to this collection yet.
-            </h2>
-            <p className="mt-4 max-w-2xl font-mono text-sm leading-7 text-white/65">
-              Publish new visuals and they will appear here automatically.
-            </p>
-          </div>
-        )}
+        </motion.section>
       </div>
 
       <GalleryLightbox

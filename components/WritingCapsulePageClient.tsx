@@ -18,6 +18,15 @@ function asString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
 }
 
+function replaceLoreCopy(value: string | null | undefined, fallback: string) {
+  const source = value?.trim() || fallback;
+
+  return source
+    .replace(/\bLORE\b/g, "WRITING")
+    .replace(/\bLore\b/g, "Writing")
+    .replace(/\blore\b/g, "writing");
+}
+
 export default function WritingCapsulePageClient({ slug }: { slug: string }) {
   const archiveQuery = useYoolaArchiveDataQuery();
   const loreCapsules: LoreCapsule[] = archiveQuery.data?.loreCapsules ?? [];
@@ -35,6 +44,7 @@ export default function WritingCapsulePageClient({ slug }: { slug: string }) {
   const profileData = asRecord(capsule.profileData);
   const detailNoteMarkdown = asString(profileData.detailNoteMarkdown);
   const bodyMarkdown = capsule.bodyMarkdown?.trim() || capsule.excerptMarkdown;
+  const backLabel = replaceLoreCopy(writingSection?.title, "Writing");
 
   return (
     <div className="bg-yoola-grid relative mx-auto min-h-screen max-w-6xl overflow-hidden bg-[#050505] px-4 pt-32 pb-48 text-white md:px-8">
@@ -46,7 +56,7 @@ export default function WritingCapsulePageClient({ slug }: { slug: string }) {
           href="/writing"
           className="inline-flex border border-white/20 bg-black/50 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.32em] text-white transition-colors hover:border-[#ff72c9] hover:text-[#ff72c9]"
         >
-          ← Back to {writingSection?.title ?? "Lore"}
+          ← Back to {backLabel}
         </Link>
 
         <div className="file-frame border border-white/10 bg-black/72 p-6 backdrop-blur md:p-8">

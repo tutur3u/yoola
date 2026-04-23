@@ -65,6 +65,24 @@
       54px 54px;
   }
 
+  .bg-artwork-archive {
+    background-color: #09050d;
+    background-image:
+      radial-gradient(circle at 12% 14%, rgba(243, 106, 255, 0.2), transparent 24%),
+      radial-gradient(circle at 82% 16%, rgba(123, 92, 255, 0.16), transparent 24%),
+      radial-gradient(circle at 50% 88%, rgba(255, 176, 208, 0.1), transparent 32%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 24%),
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size:
+      auto,
+      auto,
+      auto,
+      auto,
+      48px 48px,
+      48px 48px;
+  }
+
   .bg-writing-folio {
     background-color: #120b10;
     background-image:
@@ -191,6 +209,20 @@
     mix-blend-mode: screen;
   }
 
+  .artwork-grid-overlay {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.035) 0,
+        rgba(255, 255, 255, 0.035) 1px,
+        transparent 1px,
+        transparent 20px
+      ),
+      radial-gradient(circle at 16% 22%, rgba(243, 106, 255, 0.16), transparent 22%);
+    mix-blend-mode: screen;
+  }
+
   .writing-manuscript-overlay {
     background:
       radial-gradient(circle at 18% 28%, rgba(255, 220, 181, 0.12), transparent 24%),
@@ -232,6 +264,127 @@
     inset: 10px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     pointer-events: none;
+  }
+
+  .yoola-nav-shell {
+    position: relative;
+    border: 1px solid rgba(240, 237, 245, 0.09);
+    border-radius: 1.5rem;
+    background:
+      linear-gradient(180deg, rgba(41, 18, 48, 0.96), rgba(19, 10, 28, 0.92)), rgba(18, 9, 24, 0.9);
+    box-shadow: 0 16px 46px rgba(5, 1, 8, 0.38);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+  }
+
+  .yoola-nav-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 58%);
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .yoola-nav-shell::after {
+    content: "";
+    position: absolute;
+    top: -8rem;
+    left: -3rem;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(243, 106, 255, 0.18), transparent 68%);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  .yoola-nav-shell-collapsed {
+    box-shadow: 0 14px 34px rgba(5, 1, 8, 0.3);
+  }
+
+  .yoola-nav-shell-expanded {
+    box-shadow: 0 24px 60px rgba(5, 1, 8, 0.44);
+  }
+
+  .yoola-nav-summary {
+    position: relative;
+    z-index: 1;
+    min-height: 2.6rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .yoola-nav-summary-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7.5rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+  }
+
+  .yoola-nav-summary-value {
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #f6f2fb;
+  }
+
+  .yoola-nav-frame {
+    border-radius: 1.1rem;
+    background: transparent;
+  }
+
+  .yoola-nav-link {
+    position: relative;
+    min-width: 0;
+    padding: 0.9rem 1rem;
+    text-align: center;
+    transform: translateY(0);
+    transition:
+      transform 180ms ease,
+      color 180ms ease,
+      text-shadow 220ms ease;
+  }
+
+  .yoola-nav-link:hover {
+    transform: translateY(-1px);
+    text-shadow: 0 0 18px rgba(243, 106, 255, 0.4);
+  }
+
+  .yoola-nav-link-active::after {
+    content: "";
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.45rem;
+    left: 0.9rem;
+    height: 0.22rem;
+    background: linear-gradient(90deg, rgba(243, 106, 255, 0.8), rgba(179, 126, 255, 0.95));
+    box-shadow: 0 0 24px rgba(243, 106, 255, 0.45);
+  }
+
+  .yoola-nav-cms {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0.85rem 1.35rem;
+    border-radius: 1rem;
+    background:
+      linear-gradient(180deg, rgba(243, 106, 255, 0.22), rgba(122, 74, 255, 0.14)),
+      rgba(22, 10, 30, 0.92);
+    color: #f9f4ff;
+    box-shadow: 0 10px 30px rgba(34, 8, 47, 0.3);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .yoola-nav-cms:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 34px rgba(34, 8, 47, 0.4);
   }
 }
 

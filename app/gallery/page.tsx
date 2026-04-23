@@ -1,5 +1,5 @@
-import GalleryPageClient from "@/components/GalleryPageClient";
+import { redirect } from "next/navigation";
 
 export default function GalleryPage() {
-  return <GalleryPageClient />;
+  redirect("/artwork");
 }
