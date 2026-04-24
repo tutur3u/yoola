@@ -14,7 +14,7 @@ import { useState } from "react";
 function ArtworkMasonryImage({ artwork }: { artwork: ArchiveArtwork }) {
   if (!artwork.src) {
     return (
-      <div className="relative overflow-hidden rounded-[1rem] border border-white/10 bg-white/[0.03]">
+      <div className="relative overflow-hidden bg-white/[0.03]">
         <div
           className={`${
             artwork.orientation === "landscape"
@@ -33,15 +33,49 @@ function ArtworkMasonryImage({ artwork }: { artwork: ArchiveArtwork }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-[1rem] border border-white/10 bg-black/50">
+    <div className="overflow-hidden bg-black/50">
       <Image
         src={artwork.src}
         alt={artwork.alt || artwork.title}
         width={artwork.width}
         height={artwork.height}
         sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        className="block h-auto w-full object-cover transition duration-700 ease-out group-hover:scale-[1.045] group-hover:saturate-[1.12] group-focus-visible:scale-[1.045] group-focus-visible:saturate-[1.12]"
       />
+    </div>
+  );
+}
+
+function ArtworkHoverOverlay({ artwork }: { artwork: ArchiveArtwork }) {
+  const description = artwork.caption ?? artwork.note;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 flex flex-col justify-between bg-[linear-gradient(180deg,rgba(5,3,8,0.12)_0%,rgba(5,3,8,0.18)_36%,rgba(5,3,8,0.92)_100%)] p-4 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-focus-visible:opacity-100 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <span className="rounded-full border border-white/16 bg-black/45 px-3 py-1.5 font-mono text-[10px] tracking-[0.26em] text-white/78 uppercase shadow-[0_12px_34px_rgba(0,0,0,0.28)] backdrop-blur-md">
+          {artwork.label}
+        </span>
+        <span className="rounded-full border border-white/12 bg-white/[0.08] px-3 py-1.5 font-mono text-[10px] tracking-[0.24em] text-white/68 uppercase backdrop-blur-md">
+          {artwork.year}
+        </span>
+      </div>
+
+      <div className="translate-y-3 transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <span className="rounded-full border border-[#f36aff]/45 bg-[#f36aff]/18 px-2.5 py-1 font-mono text-[10px] tracking-[0.22em] text-[#ffd8fb] uppercase backdrop-blur-md">
+            {artwork.category}
+          </span>
+          <span className="rounded-full border border-white/12 bg-white/[0.08] px-2.5 py-1 font-mono text-[10px] tracking-[0.22em] text-white/70 uppercase backdrop-blur-md">
+            {artwork.rarity}
+          </span>
+        </div>
+        <h2 className="font-display text-2xl leading-[0.92] font-black tracking-[-0.05em] text-white uppercase drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)] sm:text-3xl">
+          {artwork.title}
+        </h2>
+        <p className="mt-3 max-h-20 overflow-hidden font-mono text-xs leading-6 text-white/72">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }
@@ -229,37 +263,12 @@ export default function GalleryPageClient() {
                       <button
                         type="button"
                         onClick={() => openViewer(visibleArtworks, art.id)}
-                        className="group w-full rounded-[1.4rem] border border-white/10 bg-black/24 p-3 text-left transition-transform duration-300 hover:-translate-y-1 hover:border-[#f36aff]/50 hover:bg-black/32"
+                        className="group relative w-full overflow-hidden rounded-[1.45rem] border border-white/10 bg-black/24 text-left shadow-[0_18px_54px_rgba(5,2,10,0.22)] transition-all duration-300 hover:-translate-y-1 hover:border-[#f36aff]/50 hover:shadow-[0_24px_70px_rgba(11,2,18,0.5)] focus-visible:border-[#f36aff]/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f36aff]/45"
+                        aria-label={`Open ${art.title}, ${art.category}, ${art.year}`}
                       >
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                          <span className="font-mono text-[10px] tracking-[0.3em] text-white/48 uppercase">
-                            {art.label}
-                          </span>
-                          <span className="font-mono text-[10px] tracking-[0.28em] text-white/38 uppercase">
-                            {art.year}
-                          </span>
-                        </div>
-
                         <ArtworkMasonryImage artwork={art} />
-
-                        <div className="mt-4 space-y-3">
-                          <div>
-                            <h2 className="font-display text-2xl font-black tracking-[-0.05em] text-white uppercase transition-colors group-hover:text-[#ffb3f0]">
-                              {art.title}
-                            </h2>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
-                                {art.category}
-                              </span>
-                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] tracking-[0.24em] text-white/58 uppercase">
-                                {art.rarity}
-                              </span>
-                            </div>
-                          </div>
-                          <p className="font-mono text-xs leading-6 text-white/62">
-                            {art.caption ?? art.note}
-                          </p>
-                        </div>
+                        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_58%,rgba(0,0,0,0.34)_100%)] opacity-75 transition-opacity duration-300 group-hover:opacity-0 group-focus-visible:opacity-0" />
+                        <ArtworkHoverOverlay artwork={art} />
                       </button>
                     </motion.div>
                   ))}
