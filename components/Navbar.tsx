@@ -8,7 +8,7 @@ import { useLightbox } from "@/components/LightboxContext";
 import type { YoolaNavigationItem } from "@/lib/archive-data";
 
 type NavbarProps = {
-  cmsHref: string;
+  adminHref: string;
   items: YoolaNavigationItem[];
 };
 
@@ -16,7 +16,7 @@ const NAVBAR_EXPAND_DELAY_MS = 70;
 const NAVBAR_COLLAPSE_DELAY_MS = 180;
 const NAVBAR_POST_NAV_CHECK_DELAY_MS = 260;
 
-export default function Navbar({ cmsHref, items }: NavbarProps) {
+export default function Navbar({ adminHref, items }: NavbarProps) {
   const pathname = usePathname();
   const { isOpen } = useLightbox();
   const [isHovered, setIsHovered] = useState(false);
@@ -120,12 +120,14 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
     return null;
   }
 
-  const activeItem =
-    items.find((item) =>
-      item.path === "/"
-        ? pathname === "/"
-        : pathname === item.path || pathname.startsWith(`${item.path}/`),
-    ) ?? items[0];
+  const isAdminActive = pathname === adminHref || pathname.startsWith(`${adminHref}/`);
+  const activeItem = isAdminActive
+    ? { name: "ADMIN", path: adminHref }
+    : (items.find((item) =>
+        item.path === "/"
+          ? pathname === "/"
+          : pathname === item.path || pathname.startsWith(`${item.path}/`),
+      ) ?? items[0]);
   const isExpanded = isDesktop ? isHovered || isFocused : isMobileExpanded;
   const showExpandedLayer = isExpanded;
   const showSummaryLayer = !isExpanded;
@@ -294,14 +296,14 @@ export default function Navbar({ cmsHref, items }: NavbarProps) {
                   );
                 })}
               </div>
-              <a
-                href={cmsHref}
-                target="_blank"
-                rel="noreferrer"
-                className="yoola-nav-cms w-full font-display text-center text-sm font-black tracking-[0.12em] uppercase md:w-auto"
+              <Link
+                href={adminHref}
+                className={`yoola-nav-cms w-full font-display text-center text-sm font-black tracking-[0.12em] uppercase md:w-auto ${
+                  isAdminActive ? "yoola-nav-cms-active" : ""
+                }`}
               >
-                CMS
-              </a>
+                Admin
+              </Link>
             </div>
           </motion.div>
         </div>

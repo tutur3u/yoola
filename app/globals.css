@@ -386,6 +386,11 @@
     transform: translateY(-1px);
     box-shadow: 0 14px 34px rgba(34, 8, 47, 0.4);
   }
+
+  .yoola-nav-cms-active {
+    background: #f9f4ff;
+    color: #100616;
+  }
 }
 
 @keyframes slide-bg {
