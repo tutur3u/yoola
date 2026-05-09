@@ -112,6 +112,7 @@ function getConfiguredArtworkCategories(
   section: YoolaPageSection | null,
   artworks: Array<{ category: string }>,
 ) {
+  const available = dedupeStrings(artworks.map((artwork) => artwork.category.toUpperCase()));
   const configured = dedupeStrings(
     asStringArray(asRecord(section?.profileData).categoryOptions).map((category) =>
       category.toUpperCase(),
@@ -119,11 +120,12 @@ function getConfiguredArtworkCategories(
   );
 
   if (configured.length === 0) {
-    return [];
+    return available;
   }
 
-  const available = new Set(artworks.map((artwork) => artwork.category.toUpperCase()));
-  return configured.filter((category) => available.has(category));
+  const availableSet = new Set(available);
+  const visibleConfigured = configured.filter((category) => availableSet.has(category));
+  return visibleConfigured.length > 0 ? visibleConfigured : available;
 }
 
 export function getYoolaApiBaseUrl() {

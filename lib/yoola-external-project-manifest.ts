@@ -1,3 +1,5 @@
+import { yoolaArtworkCatalog } from "@/lib/yoola-artworks";
+
 export type YoolaSyncField = {
   description?: string | null;
   key: string;
@@ -83,6 +85,7 @@ const artworkProfileFields = [
   { key: "width", label: "Width", type: "number" },
   { key: "height", label: "Height", type: "number" },
   { key: "note", label: "Archive note", type: "string" },
+  { key: "localAssetPath", label: "Local public asset path", type: "string" },
 ] satisfies YoolaSyncField[];
 
 const loreProfileFields = [
@@ -105,52 +108,41 @@ const sectionProfileFields = [
 
 const PUBLISHED_STATUS = "published" as const;
 
-const artworks = [
-  ["starter-signal", "Starter Signal", "ARC-01", "SPEED", "SSR", "1.png"],
-  ["pitline-static", "Pitline Static", "ARC-02", "STAMINA", "SR", "2.png"],
-  ["horizon-break", "Horizon Break", "ARC-03", "POWER", "SSR", "3.png"],
-  ["trackside-idol", "Trackside Idol", "ARC-04", "SPEED", "UR", "4.png"],
-  ["neon-silence", "Neon Silence", "ARC-05", "WISDOM", "SR", "5.png"],
-  ["pulse-vector", "Pulse Vector", "ARC-06", "POWER", "SSR", "6.png"],
-  ["crowd-transmission", "Crowd Transmission", "ARC-07", "GUTS", "R", "7.png"],
-  ["violet-draft", "Violet Draft", "ARC-08", "WISDOM", "SSR", "8.png"],
-  ["token-glare", "Token Glare", "ARC-09", "SPEED", "SR", "9.png"],
-  ["final-overtake", "Final Overtake", "ARC-10", "STAMINA", "UR", "10.png"],
-] as const;
-
 export const yoolaExternalProjectManifest = {
   adapter: "yoola",
   content: {
     entries: [
-      ...artworks.map(([slug, title, label, category, rarity, filename]) => ({
+      ...yoolaArtworkCatalog.map((artwork) => ({
         assets: [
           {
-            altText: `${title} artwork`,
+            altText: `${artwork.title} artwork`,
             assetType: "image",
             metadata: {
-              caption: title,
+              caption: artwork.title,
             },
             sortOrder: 0,
-            stableSourceId: `yoola:art:${slug}:image`,
-            storagePath: `external-projects/yoola/artworks/${filename}`,
+            stableSourceId: `yoola:art:${artwork.slug}:image`,
+            storagePath: `external-projects/yoola/artworks/${artwork.filename}`,
           },
         ],
         blocks: [],
         collectionSlug: "artworks",
         profileData: {
-          category,
-          height: 2124,
-          label,
-          orientation: "portrait",
-          rarity,
-          width: 1440,
-          year: "2026",
+          category: artwork.category,
+          height: artwork.height,
+          label: artwork.label,
+          localAssetPath: artwork.publicPath,
+          note: artwork.note,
+          orientation: artwork.orientation,
+          rarity: artwork.rarity,
+          width: artwork.width,
+          year: artwork.year,
         },
-        slug,
-        stableSourceId: `yoola:art:${slug}`,
+        slug: artwork.slug,
+        stableSourceId: `yoola:art:${artwork.slug}`,
         status: PUBLISHED_STATUS,
-        summary: `${title} archive frame.`,
-        title,
+        summary: artwork.note,
+        title: artwork.title,
       })),
       {
         blocks: [
@@ -266,7 +258,7 @@ export const yoolaExternalProjectManifest = {
         ],
         collectionSlug: "singleton-sections",
         profileData: {
-          categoryOptions: ["SPEED", "STAMINA", "POWER", "GUTS", "WISDOM"],
+          categoryOptions: ["PORTRAIT", "MOOD", "ARMOR", "STUDY", "MASK", "SKETCH"],
         },
         slug: "gallery",
         stableSourceId: "yoola:singleton:gallery",

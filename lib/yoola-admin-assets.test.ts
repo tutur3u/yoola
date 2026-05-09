@@ -10,7 +10,7 @@ const imageAsset = {
   id: "asset-1",
   preview_url: "/api/v1/workspaces/ws-1/external-projects/assets/asset-1?width=1600",
   source_url: null,
-  storage_path: "external-projects/yoola/artworks/1.png",
+  storage_path: "external-projects/yoola/artworks/bandaged-violet-closeup.png",
 } satisfies YoolaAdminImageAsset;
 
 describe("yoola admin assets", () => {

@@ -14,6 +14,7 @@ import type {
   YoolaProfileStat,
   YoolaSocialLink,
 } from "@/lib/archive-data.types";
+import { getYoolaArtworkCatalogItem } from "@/lib/yoola-artworks";
 
 const defaultProfileStats: YoolaProfileStat[] = [
   { label: "SPEED", value: 1200, max: 1200 },
@@ -179,27 +180,30 @@ function extractMarkdownFromEntry(entry: ExternalProjectDeliveryEntry | null) {
 }
 
 export function normalizeArtwork(item: YoolaExternalProjectArtworkLoadingItem): ArchiveArtwork {
-  const width = item.width ?? 1200;
-  const height = item.height ?? 1600;
+  const catalogItem = getYoolaArtworkCatalogItem(item.slug);
+  const width = catalogItem?.width ?? item.width ?? 1200;
+  const height = catalogItem?.height ?? item.height ?? 1600;
+  const title = catalogItem?.title ?? item.title;
 
   return {
     id: item.entryId,
-    src: item.assetUrl,
-    title: item.title,
+    src: catalogItem?.publicPath ?? item.assetUrl,
+    title,
     slug: item.slug,
-    label: item.label?.trim() || item.slug.toUpperCase(),
-    category: item.category?.trim().toUpperCase() || "UNFILED",
-    rarity: item.rarity?.trim().toUpperCase() || "R",
+    label: catalogItem?.label ?? item.label?.trim() ?? item.slug.toUpperCase(),
+    category: catalogItem?.category ?? item.category?.trim().toUpperCase() ?? "UNFILED",
+    rarity: catalogItem?.rarity ?? item.rarity?.trim().toUpperCase() ?? "R",
     width,
     height,
-    orientation: normalizeOrientation(item.orientation, width, height),
-    year: item.year?.trim() || "0000",
+    orientation: normalizeOrientation(catalogItem?.orientation ?? item.orientation, width, height),
+    year: catalogItem?.year ?? item.year?.trim() ?? "0000",
     note:
-      item.note?.trim() ||
-      item.summary?.trim() ||
+      catalogItem?.note ??
+      item.note?.trim() ??
+      item.summary?.trim() ??
       "No archive notes are attached to this entry yet.",
-    caption: item.caption?.trim() || null,
-    alt: item.altText?.trim() || item.title,
+    caption: catalogItem?.title ?? item.caption?.trim() ?? null,
+    alt: item.altText?.trim() || `${title} artwork`,
   };
 }
 
