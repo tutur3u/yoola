@@ -14,31 +14,31 @@
     "format-and-lint:fix": "bun run fmt:fix && bun run lint:fix"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-query": "^5.100.9",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.8.0",
+    "lucide-react": "^1.14.0",
     "motion": "^12.38.0",
-    "next": "16.2.4",
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "react-icons": "^5.6.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.5.0",
-    "tuturuuu": "^0.2.2"
+    "tuturuuu": "^0.4.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.2.2",
-    "@types/node": "^25.6.0",
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^25.6.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^10.2.1",
-    "eslint-config-next": "16.2.4",
-    "oxfmt": "^0.45.0",
-    "oxlint": "^1.60.0",
-    "oxlint-tsgolint": "^0.21.1",
-    "tailwindcss": "^4.2.2",
+    "eslint": "^10.3.0",
+    "eslint-config-next": "16.2.6",
+    "oxfmt": "^0.48.0",
+    "oxlint": "^1.63.0",
+    "oxlint-tsgolint": "^0.22.1",
+    "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3"
   }
 }
