@@ -103,6 +103,8 @@ const sectionProfileFields = [
   { key: "categoryOptions", label: "Visible categories", type: "string-array" },
 ] satisfies YoolaSyncField[];
 
+const PUBLISHED_STATUS = "published" as const;
+
 const artworks = [
   ["starter-signal", "Starter Signal", "ARC-01", "SPEED", "SSR", "1.png"],
   ["pitline-static", "Pitline Static", "ARC-02", "STAMINA", "SR", "2.png"],
@@ -146,7 +148,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug,
         stableSourceId: `yoola:art:${slug}`,
-        status: "published",
+        status: PUBLISHED_STATUS,
         summary: `${title} archive frame.`,
         title,
       })),
@@ -172,7 +174,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug: "violet-horizon",
         stableSourceId: "yoola:lore:violet-horizon",
-        status: "published",
+        status: PUBLISHED_STATUS,
         summary: "Post-race silence.",
         title: "The Violet Horizon",
       },
@@ -198,7 +200,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug: "midnight-strategy",
         stableSourceId: "yoola:lore:midnight-strategy",
-        status: "published",
+        status: PUBLISHED_STATUS,
         summary: "A quiet planning capsule.",
         title: "Midnight Strategy",
       },
@@ -224,7 +226,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug: "crowd-noise-protocol",
         stableSourceId: "yoola:lore:crowd-noise-protocol",
-        status: "published",
+        status: PUBLISHED_STATUS,
         summary: "A crowd signal capsule.",
         title: "Crowd Noise Protocol",
       },
@@ -248,7 +250,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug: "home-hero",
         stableSourceId: "yoola:singleton:home-hero",
-        status: "published",
+        status: PUBLISHED_STATUS,
         title: "Home Hero",
       },
       {
@@ -268,7 +270,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug: "gallery",
         stableSourceId: "yoola:singleton:gallery",
-        status: "published",
+        status: PUBLISHED_STATUS,
         title: "Gallery",
       },
       {
@@ -288,7 +290,7 @@ export const yoolaExternalProjectManifest = {
         },
         slug: "writing",
         stableSourceId: "yoola:singleton:writing",
-        status: "published",
+        status: PUBLISHED_STATUS,
         title: "Writing",
       },
     ],

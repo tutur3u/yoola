@@ -69,7 +69,7 @@ export function YoolaAdminSchemaFields({
 }) {
   const schema = getYoolaManifestCollectionSchema(collectionSlug);
   const profileData = toRecord(profileDataText);
-  const fields = schema?.profileFields ?? [];
+  const fields: YoolaSyncField[] = [...(schema?.profileFields ?? [])];
 
   if (!schema || fields.length === 0 || !profileData) {
     return null;
@@ -116,7 +116,7 @@ export function YoolaAdminSchemaFields({
                 <option className="bg-[#111115]" value="">
                   Unset
                 </option>
-                {field.options.map((option) => (
+                {field.options.map((option: string) => (
                   <option className="bg-[#111115]" key={option} value={option}>
                     {option}
                   </option>
