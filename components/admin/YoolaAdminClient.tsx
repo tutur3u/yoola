@@ -8,13 +8,15 @@ import type {
   YoolaAdminStudioPayload,
   YoolaEntryStatus,
 } from "@/lib/yoola-admin-api";
+import { YoolaAdminMediaImage } from "@/components/admin/YoolaAdminMediaImage";
+import { YoolaAdminSchemaFields } from "@/components/admin/YoolaAdminSchemaFields";
+import { YoolaAdminSyncPanel } from "@/components/admin/YoolaAdminSyncPanel";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
   Check,
   Eye,
   FileText,
-  ImageIcon,
   LoaderCircle,
   LogOut,
   RefreshCw,
@@ -23,7 +25,6 @@ import {
   Settings2,
   Undo2,
 } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type AdminLink = {
@@ -264,6 +265,7 @@ function TextArea({
 
 function EntryEditor({
   assets,
+  collectionSlug,
   collectionTitle,
   entry,
   isPublishing,
@@ -272,6 +274,7 @@ function EntryEditor({
   onSave,
 }: {
   assets: YoolaAdminAsset[];
+  collectionSlug: string;
   collectionTitle: string;
   entry: YoolaAdminEntry;
   isPublishing: boolean;
@@ -316,17 +319,7 @@ function EntryEditor({
     <section className="grid min-h-[44rem] border border-white/10 bg-white/[0.035] lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
       <div className="border-b border-white/10 p-5 lg:border-r lg:border-b-0">
         <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden border border-white/10 bg-black/28">
-          {primaryAsset?.preview_url || primaryAsset?.asset_url ? (
-            <Image
-              alt={primaryAsset.alt_text ?? entry.title}
-              className="object-cover"
-              fill
-              sizes="(max-width: 1024px) 88vw, 32vw"
-              src={primaryAsset.preview_url ?? primaryAsset.asset_url ?? ""}
-            />
-          ) : (
-            <ImageIcon className="size-10 text-white/22" />
-          )}
+          <YoolaAdminMediaImage alt={primaryAsset?.alt_text ?? entry.title} asset={primaryAsset} />
         </div>
         <div className="mt-5 space-y-3 text-sm text-white/58">
           <div className="flex items-center justify-between gap-3">
@@ -447,6 +440,11 @@ function EntryEditor({
               value={draft.summary}
             />
           </Field>
+          <YoolaAdminSchemaFields
+            collectionSlug={collectionSlug}
+            onChange={(value) => setDraftValue("profileDataText", value)}
+            profileDataText={draft.profileDataText}
+          />
           <div className="md:col-span-2">
             <Field label="Profile data">
               <TextArea
@@ -604,6 +602,7 @@ export function YoolaAdminClient({
   const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(
     initialStudio.collections[0]?.id ?? null,
   );
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const studioQuery = useQuery({
     initialData: initialStudio,
     queryFn: () => fetchAdminJson<YoolaAdminStudioPayload>("/api/admin/studio"),
@@ -620,6 +619,7 @@ export function YoolaAdminClient({
         method: "PATCH",
       }),
     onSuccess: (entry) => {
+      setStatusMessage("Entry saved.");
       queryClient.setQueryData<YoolaAdminStudioPayload>(STUDIO_QUERY_KEY, (current) =>
         current ? mergeEntry(current, entry) : current,
       );
@@ -632,6 +632,7 @@ export function YoolaAdminClient({
         method: "POST",
       }),
     onSuccess: (entry) => {
+      setStatusMessage(entry.status === "published" ? "Entry published." : "Entry unpublished.");
       queryClient.setQueryData<YoolaAdminStudioPayload>(STUDIO_QUERY_KEY, (current) =>
         current ? mergeEntry(current, entry) : current,
       );
@@ -653,6 +654,7 @@ export function YoolaAdminClient({
         },
       ),
     onSuccess: (collection) => {
+      setStatusMessage("Collection saved.");
       queryClient.setQueryData<YoolaAdminStudioPayload>(STUDIO_QUERY_KEY, (current) =>
         current ? mergeCollection(current, collection) : current,
       );
@@ -774,6 +776,14 @@ export function YoolaAdminClient({
           </div>
         ) : null}
 
+        {statusMessage ? (
+          <div className="mt-5 border border-emerald-300/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+            {statusMessage}
+          </div>
+        ) : null}
+
+        <YoolaAdminSyncPanel />
+
         <div className="mt-5 grid gap-5 xl:grid-cols-[23rem_minmax(0,1fr)]">
           <aside className="border border-white/10 bg-white/[0.03]">
             <div className="border-b border-white/10 p-4">
@@ -812,34 +822,48 @@ export function YoolaAdminClient({
             </div>
             <div className="max-h-[38rem] overflow-auto">
               {filteredEntries.length > 0 ? (
-                filteredEntries.map((entry) => (
-                  <button
-                    className={`grid w-full gap-2 border-b border-white/8 px-4 py-3 text-left transition hover:bg-white/[0.045] ${
-                      selectedEntry?.id === entry.id ? "bg-white/[0.07]" : ""
-                    }`}
-                    key={entry.id}
-                    onClick={() => {
-                      setSelectedEntryId(entry.id);
-                      setSelectedCollectionId(entry.collection_id);
-                    }}
-                    type="button"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="line-clamp-2 text-sm font-bold text-white">
-                        {entry.title}
-                      </span>
-                      <span
-                        className={`shrink-0 border px-2 py-0.5 text-[11px] font-bold ${getStatusClass(entry.status)}`}
-                      >
-                        {entry.status}
-                      </span>
-                    </div>
-                    <span className="font-mono text-xs text-white/38">{entry.slug}</span>
-                    <span className="text-xs text-white/40">
-                      {getCollectionTitle(studio.collections, entry.collection_id)}
-                    </span>
-                  </button>
-                ))
+                filteredEntries.map((entry) => {
+                  const entryAsset = getPrimaryAsset(entry, studio.assets);
+
+                  return (
+                    <button
+                      className={`grid w-full grid-cols-[3.25rem_minmax(0,1fr)] gap-3 border-b border-white/8 px-4 py-3 text-left transition hover:bg-white/[0.045] ${
+                        selectedEntry?.id === entry.id ? "bg-white/[0.07]" : ""
+                      }`}
+                      key={entry.id}
+                      onClick={() => {
+                        setSelectedEntryId(entry.id);
+                        setSelectedCollectionId(entry.collection_id);
+                      }}
+                      type="button"
+                    >
+                      <div className="relative aspect-[4/5] overflow-hidden border border-white/10 bg-black/28">
+                        <YoolaAdminMediaImage
+                          alt={entryAsset?.alt_text ?? entry.title}
+                          asset={entryAsset}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="line-clamp-2 text-sm font-bold text-white">
+                            {entry.title}
+                          </span>
+                          <span
+                            className={`shrink-0 border px-2 py-0.5 text-[11px] font-bold ${getStatusClass(entry.status)}`}
+                          >
+                            {entry.status}
+                          </span>
+                        </div>
+                        <span className="mt-1 block truncate font-mono text-xs text-white/38">
+                          {entry.slug}
+                        </span>
+                        <span className="mt-1 block text-xs text-white/40">
+                          {getCollectionTitle(studio.collections, entry.collection_id)}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })
               ) : (
                 <div className="grid min-h-48 place-items-center px-4 text-center text-sm text-white/42">
                   No entries match the current filters.
@@ -852,6 +876,7 @@ export function YoolaAdminClient({
             {selectedEntry ? (
               <EntryEditor
                 assets={studio.assets}
+                collectionSlug={selectedCollection?.slug ?? ""}
                 collectionTitle={getCollectionTitle(
                   studio.collections,
                   selectedEntry.collection_id,
