@@ -1,4 +1,5 @@
 import { getYoolaWorkspaceId } from "@/lib/archive-data";
+import { sanitizeYoolaNextPath } from "@/lib/yoola-auth-paths";
 
 export type YoolaAdminTargetKey = "dashboard" | "library" | "preview" | "members" | "settings";
 
@@ -98,6 +99,27 @@ export function getYoolaWebAppUrl() {
   });
 }
 
+export function getYoolaAppBaseUrl(requestOrigin?: string) {
+  const configured =
+    process.env.YOOLA_APP_URL ??
+    process.env.NEXT_PUBLIC_YOOLA_APP_URL ??
+    process.env.NEXT_PUBLIC_APP_URL;
+
+  if (configured?.trim()) {
+    return trimTrailingSlash(configured.trim());
+  }
+
+  if (requestOrigin?.trim()) {
+    return trimTrailingSlash(requestOrigin.trim());
+  }
+
+  if (process.env.VERCEL_URL?.trim()) {
+    return `https://${trimTrailingSlash(process.env.VERCEL_URL.trim())}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 export function resolveYoolaAdminTargetKey(value: string | null | undefined): YoolaAdminTargetKey {
   return YOOLA_ADMIN_TARGETS.some((target) => target.key === value)
     ? (value as YoolaAdminTargetKey)
@@ -143,25 +165,20 @@ export function buildYoolaCmsVerifyUrl({
 }
 
 export function buildYoolaCentralizedLoginUrl({
-  cmsBaseUrl = getYoolaCmsBaseUrl(),
-  targetKey,
+  appBaseUrl = getYoolaAppBaseUrl(),
+  nextUrl = "/admin",
   webAppUrl = getYoolaWebAppUrl(),
-  workspaceId = getYoolaWorkspaceId(),
 }: {
-  cmsBaseUrl?: string;
-  targetKey: YoolaAdminTargetKey;
+  appBaseUrl?: string;
+  nextUrl?: string;
   webAppUrl?: string;
-  workspaceId?: string;
 }) {
+  const appOrigin = new URL(appBaseUrl).origin;
+  const verifyUrl = new URL("/verify-token", appOrigin);
+  verifyUrl.searchParams.set("nextUrl", sanitizeYoolaNextPath(nextUrl, appOrigin, "/admin"));
+
   const loginUrl = new URL("/login", webAppUrl);
-  loginUrl.searchParams.set(
-    "returnUrl",
-    buildYoolaCmsVerifyUrl({
-      cmsBaseUrl,
-      targetKey,
-      workspaceId,
-    }),
-  );
+  loginUrl.searchParams.set("returnUrl", verifyUrl.toString());
   return loginUrl.toString();
 }
 
