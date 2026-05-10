@@ -119,6 +119,7 @@ export const yoolaExternalProjectManifest = {
             assetType: "image",
             metadata: {
               caption: artwork.title,
+              publicPath: artwork.publicPath,
             },
             sortOrder: 0,
             stableSourceId: `yoola:art:${artwork.slug}:image`,

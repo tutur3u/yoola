@@ -187,7 +187,7 @@ export function normalizeArtwork(item: YoolaExternalProjectArtworkLoadingItem): 
 
   return {
     id: item.entryId,
-    src: catalogItem?.publicPath ?? item.assetUrl,
+    src: item.assetUrl ?? catalogItem?.publicPath ?? null,
     title,
     slug: item.slug,
     label: catalogItem?.label ?? item.label?.trim() ?? item.slug.toUpperCase(),

@@ -48,6 +48,10 @@ export function YoolaAdminSyncPanel() {
     mutationFn: (force: boolean) =>
       postAdminJson<{
         diff?: SyncDiffResponse;
+        publicAssetSync?: {
+          skipped?: unknown[];
+          uploaded?: unknown[];
+        };
       }>("/api/admin/sync/apply", { force }),
     onSuccess: (result) => {
       diffMutation.reset();
@@ -57,6 +61,7 @@ export function YoolaAdminSyncPanel() {
     },
   });
   const diff = diffMutation.data ?? applyMutation.data?.diff ?? null;
+  const publicAssetSync = applyMutation.data?.publicAssetSync ?? null;
   const summary = diff?.summary;
   const totalOperations =
     (summary?.archive ?? 0) +
@@ -145,6 +150,13 @@ export function YoolaAdminSyncPanel() {
           {totalOperations === 0
             ? "Manifest is already in sync."
             : `${totalOperations} changes ready.`}
+        </p>
+      ) : null}
+
+      {publicAssetSync ? (
+        <p className="mt-3 text-sm text-white/48">
+          Uploaded {publicAssetSync.uploaded?.length ?? 0} public assets
+          {publicAssetSync.skipped?.length ? `, skipped ${publicAssetSync.skipped.length}` : ""}.
         </p>
       ) : null}
 

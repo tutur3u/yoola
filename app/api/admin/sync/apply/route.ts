@@ -1,5 +1,6 @@
 import { getYoolaApiBaseUrl, getYoolaWorkspaceId } from "@/lib/archive-data";
-import { getYoolaAdminSession } from "@/lib/yoola-admin-api";
+import { syncPublicFolderAssets } from "@/lib/tuturuuu-public-folder-sync";
+import { getYoolaAdminSession, revalidateYoolaContent } from "@/lib/yoola-admin-api";
 import { yoolaExternalProjectManifest } from "@/lib/yoola-external-project-manifest";
 import { NextResponse } from "next/server";
 
@@ -20,14 +21,36 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as { force?: unknown } | null;
   const workspaceId = getYoolaWorkspaceId();
+  const apiBaseUrl = getYoolaApiBaseUrl();
+  const publicAssetSync = await syncPublicFolderAssets({
+    accessToken: session.accessToken,
+    apiBaseUrl,
+    manifest: yoolaExternalProjectManifest,
+    tokenType: session.tokenType,
+    workspaceId,
+  });
+
+  if (publicAssetSync.skipped.length > 0) {
+    return NextResponse.json(
+      {
+        error: "Missing local public assets. Upload aborted before applying the manifest.",
+        publicAssetSync: {
+          skipped: publicAssetSync.skipped,
+          uploaded: publicAssetSync.uploaded,
+        },
+      },
+      { status: 400 },
+    );
+  }
+
   const response = await fetch(
-    `${getYoolaApiBaseUrl().replace(/\/+$/, "")}/workspaces/${encodeURIComponent(
+    `${apiBaseUrl.replace(/\/+$/, "")}/workspaces/${encodeURIComponent(
       workspaceId,
     )}/external-projects/sync/apply`,
     {
       body: JSON.stringify({
         force: body?.force === true,
-        manifest: yoolaExternalProjectManifest,
+        manifest: publicAssetSync.manifest,
       }),
       cache: "no-store",
       headers: {
@@ -43,5 +66,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: await readApiError(response) }, { status: response.status });
   }
 
-  return NextResponse.json(await response.json());
+  revalidateYoolaContent();
+  return NextResponse.json({
+    ...(await response.json()),
+    publicAssetSync: {
+      skipped: publicAssetSync.skipped,
+      uploaded: publicAssetSync.uploaded,
+    },
+  });
 }
