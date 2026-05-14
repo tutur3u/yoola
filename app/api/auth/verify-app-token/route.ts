@@ -1,4 +1,4 @@
-import { getYoolaApiBaseUrl } from "@/lib/archive-data";
+import { getYoolaApiBaseUrl, getYoolaWorkspaceId } from "@/lib/archive-data";
 import { getYoolaAppId, getYoolaAppSecret } from "@/lib/yoola-auth-paths";
 import { setYoolaSessionCookie, type YoolaAdminSession } from "@/lib/yoola-session";
 import { type NextRequest, NextResponse } from "next/server";
@@ -13,6 +13,7 @@ type AppTokenExchangeResponse = {
   error?: string;
   expiresAt?: string;
   tokenType?: string;
+  workspaceId?: string | null;
   user?: {
     email?: string | null;
     id?: string;
@@ -46,6 +47,7 @@ async function exchangeCrossAppToken(token: string) {
       appSecret: getYoolaAppSecret(),
       requestedScopes: ["external-projects:*"],
       token,
+      workspaceId: getYoolaWorkspaceId(),
     }),
     cache: "no-store",
     headers: {
@@ -63,7 +65,7 @@ async function exchangeCrossAppToken(token: string) {
 }
 
 function toYoolaSession(payload: AppTokenExchangeResponse): YoolaAdminSession {
-  if (!payload.accessToken || !payload.expiresAt || !payload.user?.id) {
+  if (!payload.accessToken || !payload.expiresAt || !payload.user?.id || !payload.workspaceId) {
     throw new Error("Invalid Tuturuuu app token exchange response.");
   }
 
@@ -74,6 +76,7 @@ function toYoolaSession(payload: AppTokenExchangeResponse): YoolaAdminSession {
     },
     expiresAt: payload.expiresAt,
     tokenType: "Bearer",
+    workspaceId: payload.workspaceId,
     user: {
       email: payload.user.email ?? null,
       id: payload.user.id,
