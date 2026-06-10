@@ -1,5 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
-import { getYoolaWorkspaceId } from "@/lib/archive-data";
+import { getYoolaApiBaseUrl, getYoolaWorkspaceId } from "@/lib/archive-data";
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 
@@ -82,11 +82,33 @@ function unsealSession(value: string): YoolaAdminSession | null {
   }
 }
 
+function getYoolaSessionValidationUrl(workspaceId: string) {
+  const apiBaseUrl = getYoolaApiBaseUrl().replace(/\/+$/, "");
+  return `${apiBaseUrl}/workspaces/${encodeURIComponent(workspaceId)}/external-projects/summary`;
+}
+
+async function validateYoolaSession(session: YoolaAdminSession) {
+  try {
+    const response = await fetch(getYoolaSessionValidationUrl(session.workspaceId), {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        Authorization: `${session.tokenType} ${session.accessToken}`,
+      },
+    });
+
+    return response.ok ? session : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getYoolaSessionFromCookies() {
   const cookieStore = await cookies();
   const value = cookieStore.get(YOOLA_SESSION_COOKIE)?.value;
+  const session = value ? unsealSession(value) : null;
 
-  return value ? unsealSession(value) : null;
+  return session ? validateYoolaSession(session) : null;
 }
 
 export function setYoolaSessionCookie(response: NextResponse, session: YoolaAdminSession) {
