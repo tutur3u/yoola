@@ -10,6 +10,7 @@ const assetPathPrefix = parsedAssetBaseUrl.pathname.replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   transpilePackages: ["motion"],
   images: {
     dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",

@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "yol-yoola-archive", "**/*.test.ts", "**/*.test.tsx"]
+}
